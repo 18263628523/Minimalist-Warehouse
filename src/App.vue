@@ -51,14 +51,14 @@
           ready-text="暂无可用变更"
           :current-repo="currentRepo"
           mode="changes"
+          ref="statusPanelRef"
         />
 
-        <StatusPanel
+        <CommitPanel
           v-else-if="activeTab === 'commit'"
           title="提交"
-          ready-text=""
           :current-repo="currentRepo"
-          mode="textarea"
+          @committed="loadRepoStatus"
         />
 
         <StatusPanel
@@ -91,11 +91,13 @@
 import { ref, onMounted } from 'vue'
 import RepoPanel from './components/RepoPanel.vue'
 import StatusPanel from './components/StatusPanel.vue'
+import CommitPanel from './components/CommitPanel.vue'
 
 const activeTab = ref('repo')
 const currentRepo = ref(null)
 const hasRemote = ref(false)
 const recentRepos = ref([])
+const statusPanelRef = ref(null)
 
 const tabs = [
   { id: 'repo', name: '仓库' },
@@ -180,6 +182,13 @@ async function switchToRepo(repo) {
 async function loadRecentRepos() {
   if (!window.electronAPI) return
   recentRepos.value = await window.electronAPI.getRecent()
+}
+
+// Refresh repo status after commit
+async function loadRepoStatus() {
+  if (statusPanelRef.value) {
+    statusPanelRef.value.refreshStatus()
+  }
 }
 
 onMounted(() => {

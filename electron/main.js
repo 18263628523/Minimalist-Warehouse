@@ -262,3 +262,77 @@ ipcMain.handle('git:addToIgnore', async (event, repoPath, filePath) => {
     return { success: false, error: error.message }
   }
 })
+
+// Git commit
+ipcMain.handle('git:commit', async (event, repoPath, message) => {
+  try {
+    execSync('git commit -m "' + message.replace(/"/g, '\\"') + '"', { cwd: repoPath, encoding: 'utf-8' })
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Git commit with amend
+ipcMain.handle('git:commitAmend', async (event, repoPath, message, noEdit = false) => {
+  try {
+    const cmd = noEdit ? 'git commit --amend --no-edit' : 'git commit -m "' + message.replace(/"/g, '\\"') + '" --amend'
+    execSync(cmd, { cwd: repoPath, encoding: 'utf-8' })
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Git push
+ipcMain.handle('git:push', async (event, repoPath) => {
+  try {
+    execSync('git push', { cwd: repoPath, encoding: 'utf-8' })
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Git push with set upstream
+ipcMain.handle('git:pushSetUpstream', async (event, repoPath, remote, branch) => {
+  try {
+    execSync('git push -u ' + remote + ' ' + branch, { cwd: repoPath, encoding: 'utf-8' })
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Git commit and push
+ipcMain.handle('git:commitAndPush', async (event, repoPath, message) => {
+  try {
+    // First commit
+    execSync('git commit -m "' + message.replace(/"/g, '\\"') + '"', { cwd: repoPath, encoding: 'utf-8' })
+    // Then push
+    execSync('git push', { cwd: repoPath, encoding: 'utf-8' })
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Get last commit message (for amend reference)
+ipcMain.handle('git:lastCommitMsg', async (event, repoPath) => {
+  try {
+    const output = execSync('git log -1 --pretty=%B', { cwd: repoPath, encoding: 'utf-8' })
+    return output.trim()
+  } catch (error) {
+    return ''
+  }
+})
+
+// Get current branch name
+ipcMain.handle('git:currentBranch', async (event, repoPath) => {
+  try {
+    const output = execSync('git branch --show-current', { cwd: repoPath, encoding: 'utf-8' })
+    return output.trim()
+  } catch (error) {
+    return ''
+  }
+})

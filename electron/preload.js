@@ -19,6 +19,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   diff: (path, filePath) => ipcRenderer.invoke('git:diff', path, filePath),
   diffCached: (path, filePath) => ipcRenderer.invoke('git:diffCached', path, filePath),
   addToIgnore: (path, filePath) => ipcRenderer.invoke('git:addToIgnore', path, filePath),
+  commit: (path, message) => ipcRenderer.invoke('git:commit', path, message),
+  commitAmend: (path, message, noEdit) => ipcRenderer.invoke('git:commitAmend', path, message, noEdit),
+  push: (path) => ipcRenderer.invoke('git:push', path),
+  pushSetUpstream: (path, remote, branch) => ipcRenderer.invoke('git:pushSetUpstream', path, remote, branch),
+  commitAndPush: (path, message) => ipcRenderer.invoke('git:commitAndPush', path, message),
+  lastCommitMsg: (path) => ipcRenderer.invoke('git:lastCommitMsg', path),
+  currentBranch: (path) => ipcRenderer.invoke('git:currentBranch', path),
   
   // File system
   readDir: (path) => ipcRenderer.invoke('fs:readDir', path),
