@@ -15,20 +15,6 @@
         <button @click="selectAll" class="btn-select" title="全选">
           {{ allSelected ? '☑ 全选' : '☐ 全选' }}
         </button>
-        <div class="toolbar-actions" v-if="hasChanges">
-          <button @click="stageSelected" class="btn-primary" title="添加到暂存">
-            + 暂存
-          </button>
-          <button @click="unstageSelected" title="取消暂存">
-            - 暂存
-          </button>
-          <button @click="discardSelected" class="btn-danger" title="撤销更改">
-            ↩ 撤销
-          </button>
-          <button @click="ignoreSelected" title="添加到 .gitignore">
-            ⊘ 忽略
-          </button>
-        </div>
       </div>
 
       <div class="changes-layout" v-if="mode === 'changes'">
@@ -46,6 +32,7 @@
                   :key="file.path"
                   :class="['file-item', 'staged', { active: activeFile?.path === file.path }]"
                   @click="openDiff(file.path, true)"
+                  @contextmenu.prevent="openContextMenu($event, file.path)"
                 >
                   <input
                     type="checkbox"
@@ -70,6 +57,7 @@
                   :key="file.path"
                   :class="['file-item', 'modified', { active: activeFile?.path === file.path }]"
                   @click="openDiff(file.path, false)"
+                  @contextmenu.prevent="openContextMenu($event, file.path)"
                 >
                   <input
                     type="checkbox"
@@ -93,6 +81,7 @@
                   :key="file.path"
                   :class="['file-item', 'untracked', { active: activeFile?.path === file.path }]"
                   @click="openDiff(file.path, false)"
+                  @contextmenu.prevent="openContextMenu($event, file.path)"
                 >
                   <input
                     type="checkbox"
@@ -119,6 +108,7 @@
                   :key="file.path"
                   :class="['file-item', 'deleted', { active: activeFile?.path === file.path }]"
                   @click="openDiff(file.path, false)"
+                  @contextmenu.prevent="openContextMenu($event, file.path)"
                 >
                   <input
                     type="checkbox"
@@ -150,13 +140,42 @@
 
             <div class="diff-columns">
               <div class="diff-pane">
-                <div class="diff-pane-title">本地文件</div>
-                <pre class="diff-content"><div v-for="(l, i) in localLines" :key="`l-${i}`" :class="['diff-line', { changed: l.changed }]"><template v-for="(seg, si) in l.segments" :key="`ls-${i}-${si}`"><span :class="seg.kind"><template v-for="(t, ti) in seg.tokens" :key="`lst-${i}-${si}-${ti}`"><span :class="t.kind">{{ t.text }}</span></template></span></template></div></pre>
+                <div class="diff-pane-title">
+                  <span>本地文件</span>
+                  <span class="diff-nav">
+                    <button
+                      class="diff-nav-btn"
+                      :disabled="diffNav.total === 0"
+                      @click="gotoPrevDiff"
+                      title="上一个差异"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      class="diff-nav-btn"
+                      :disabled="diffNav.total === 0"
+                      @click="gotoNextDiff"
+                      title="下一个差异"
+                    >
+                      ↓
+                    </button>
+                    <span class="diff-nav-count" v-if="diffNav.total > 0">
+                      {{ diffNav.index + 1 }}/{{ diffNav.total }}
+                    </span>
+                    <span class="diff-nav-count" v-else>0/0</span>
+                  </span>
+                </div>
+                <pre ref="localScrollEl" class="diff-content" @scroll="onLocalScroll"><div v-for="(l, i) in localLines" :key="`l-${i}`" :class="['diff-line', { changed: l.changed }]"><template v-for="(seg, si) in l.segments" :key="`ls-${i}-${si}`"><span :class="seg.kind"><template v-for="(t, ti) in seg.tokens" :key="`lst-${i}-${si}-${ti}`"><span :class="t.kind">{{ t.text }}</span></template></span></template></div></pre>
               </div>
               <div class="diff-pane">
                 <div class="diff-pane-title">Git 当前（HEAD）</div>
-                <pre class="diff-content"><div v-for="(l, i) in gitLines" :key="`r-${i}`" :class="['diff-line', { changed: l.changed }]"><template v-for="(seg, si) in l.segments" :key="`rs-${i}-${si}`"><span :class="seg.kind"><template v-for="(t, ti) in seg.tokens" :key="`rst-${i}-${si}-${ti}`"><span :class="t.kind">{{ t.text }}</span></template></span></template></div></pre>
+                <pre ref="gitScrollEl" class="diff-content" @scroll="onGitScroll"><div v-for="(l, i) in gitLines" :key="`r-${i}`" :class="['diff-line', { changed: l.changed }]"><template v-for="(seg, si) in l.segments" :key="`rs-${i}-${si}`"><span :class="seg.kind"><template v-for="(t, ti) in seg.tokens" :key="`rst-${i}-${si}-${ti}`"><span :class="t.kind">{{ t.text }}</span></template></span></template></div></pre>
               </div>
+            </div>
+
+            <div class="diff-loading" v-if="isLoading">
+              <div class="spinner" />
+              <div class="diff-loading-text">加载差异中…</div>
             </div>
           </div>
 
@@ -164,6 +183,39 @@
             <div class="diff-placeholder-title">差异预览</div>
             <div class="diff-placeholder-text">点击左侧文件行，在此处加载对比。</div>
           </div>
+        </div>
+      </div>
+
+      <!-- Context menu -->
+      <div
+        v-if="ctx.visible"
+        class="ctx-backdrop"
+        @click="closeContextMenu"
+        @contextmenu.prevent="closeContextMenu"
+      >
+        <div
+          class="ctx-menu"
+          :style="{ left: ctx.x + 'px', top: ctx.y + 'px' }"
+          @click.stop
+          @contextmenu.prevent
+        >
+          <div class="ctx-title">
+            {{ ctxTitle }}
+            <span class="ctx-sub" v-if="ctx.count > 1">({{ ctx.count }} 个)</span>
+          </div>
+
+          <button class="ctx-item" :disabled="!canStage" @click="ctxStage">
+            + 暂存
+          </button>
+          <button class="ctx-item" :disabled="!canUnstage" @click="ctxUnstage">
+            - 取消暂存
+          </button>
+          <button class="ctx-item danger" :disabled="!canDiscard" @click="ctxDiscard">
+            ↩ 撤销更改
+          </button>
+          <button class="ctx-item" :disabled="!canIgnore" @click="ctxIgnore">
+            ⊘ 忽略（加入 .gitignore）
+          </button>
         </div>
       </div>
 
@@ -181,7 +233,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 
 const props = defineProps({
   title: { type: String, required: true },
@@ -205,6 +257,185 @@ const gitContent = ref('')
 const localLines = ref([])
 const gitLines = ref([])
 const activeFile = ref(null)
+const isLoading = ref(false)
+
+const localScrollEl = ref(null)
+const gitScrollEl = ref(null)
+let isSyncingScroll = false
+
+const ctx = ref({
+  visible: false,
+  x: 0,
+  y: 0,
+  target: ''
+})
+
+const diffNav = ref({
+  total: 0,
+  index: -1
+})
+
+const fileSets = computed(() => {
+  const staged = new Set(status.value.staged.map(f => f.path))
+  const modified = new Set(status.value.modified.map(f => f.path))
+  const untracked = new Set(status.value.untracked.map(f => f.path))
+  const deleted = new Set(status.value.deleted.map(f => f.path))
+  return { staged, modified, untracked, deleted }
+})
+
+const ctxSelection = computed(() => {
+  const t = ctx.value.target
+  if (!t) return []
+  return selectedFiles.value.includes(t) ? [...selectedFiles.value] : [t]
+})
+
+const ctxTitle = computed(() => ctx.value.target || '')
+const canStage = computed(() => {
+  const { staged, modified, untracked, deleted } = fileSets.value
+  return ctxSelection.value.some(p => !staged.has(p) && (modified.has(p) || untracked.has(p) || deleted.has(p)))
+})
+const canUnstage = computed(() => {
+  const { staged } = fileSets.value
+  return ctxSelection.value.some(p => staged.has(p))
+})
+const canDiscard = computed(() => {
+  const { modified, deleted } = fileSets.value
+  // 未跟踪文件无法用 checkout 撤销；这里仅对已修改/已删除提供撤销
+  return ctxSelection.value.some(p => modified.has(p) || deleted.has(p))
+})
+const canIgnore = computed(() => ctxSelection.value.length > 0)
+
+function openContextMenu(e, filePath) {
+  ctx.value.visible = true
+  ctx.value.x = e.clientX
+  ctx.value.y = e.clientY
+  ctx.value.target = filePath
+  ctx.value.count = selectedFiles.value.includes(filePath) ? selectedFiles.value.length : 1
+}
+
+function closeContextMenu() {
+  ctx.value.visible = false
+  ctx.value.target = ''
+}
+
+async function stagePaths(paths) {
+  if (!window.electronAPI || paths.length === 0) return
+  const result = await window.electronAPI.add(props.currentRepo.path, paths)
+  if (!result.success) alert('暂存失败: ' + result.error)
+  await loadStatus()
+}
+
+async function unstagePaths(paths) {
+  if (!window.electronAPI || paths.length === 0) return
+  const result = await window.electronAPI.reset(props.currentRepo.path, paths)
+  if (!result.success) alert('取消暂存失败: ' + result.error)
+  await loadStatus()
+}
+
+async function discardPaths(paths) {
+  if (!window.electronAPI || paths.length === 0) return
+  if (!confirm('确定要撤销这些文件的更改吗？此操作不可恢复！')) return
+  const result = await window.electronAPI.checkout(props.currentRepo.path, paths)
+  if (!result.success) alert('撤销失败: ' + result.error)
+  await loadStatus()
+}
+
+async function ignorePaths(paths) {
+  if (!window.electronAPI || paths.length === 0) return
+  for (const p of paths) {
+    await window.electronAPI.addToIgnore(props.currentRepo.path, p)
+  }
+  await loadStatus()
+}
+
+async function ctxStage() {
+  const { staged } = fileSets.value
+  const files = ctxSelection.value.filter(p => !staged.has(p))
+  await stagePaths(files)
+  closeContextMenu()
+}
+
+async function ctxUnstage() {
+  const { staged } = fileSets.value
+  const files = ctxSelection.value.filter(p => staged.has(p))
+  await unstagePaths(files)
+  closeContextMenu()
+}
+
+async function ctxDiscard() {
+  const { modified, deleted } = fileSets.value
+  const files = ctxSelection.value.filter(p => modified.has(p) || deleted.has(p))
+  await discardPaths(files)
+  closeContextMenu()
+}
+
+async function ctxIgnore() {
+  await ignorePaths(ctxSelection.value)
+  closeContextMenu()
+}
+
+function syncScroll(from, to) {
+  if (!from || !to) return
+  if (isSyncingScroll) return
+  isSyncingScroll = true
+  to.scrollTop = from.scrollTop
+  // keep horizontal scroll consistent too
+  to.scrollLeft = from.scrollLeft
+  requestAnimationFrame(() => {
+    isSyncingScroll = false
+  })
+}
+
+function onLocalScroll() {
+  syncScroll(localScrollEl.value, gitScrollEl.value)
+}
+
+function onGitScroll() {
+  syncScroll(gitScrollEl.value, localScrollEl.value)
+}
+
+function getChangedLineEls() {
+  const el = localScrollEl.value
+  if (!el) return []
+  return Array.from(el.querySelectorAll('.diff-line.changed'))
+}
+
+function updateDiffNavTotal() {
+  diffNav.value.total = getChangedLineEls().length
+  if (diffNav.value.total === 0) diffNav.value.index = -1
+  else if (diffNav.value.index < 0) diffNav.value.index = 0
+  else if (diffNav.value.index >= diffNav.value.total) diffNav.value.index = diffNav.value.total - 1
+}
+
+function scrollToDiffAt(idx) {
+  const els = getChangedLineEls()
+  if (els.length === 0) return
+  const nextIdx = Math.max(0, Math.min(idx, els.length - 1))
+  diffNav.value.total = els.length
+  diffNav.value.index = nextIdx
+
+  const target = els[nextIdx]
+  const container = localScrollEl.value
+  if (!target || !container) return
+
+  const top = target.offsetTop
+  const center = Math.max(0, top - Math.floor(container.clientHeight * 0.35))
+  container.scrollTop = center
+  // 触发同步滚动
+  onLocalScroll()
+}
+
+function gotoPrevDiff() {
+  if (diffNav.value.total <= 0) return
+  const idx = diffNav.value.index <= 0 ? diffNav.value.total - 1 : diffNav.value.index - 1
+  scrollToDiffAt(idx)
+}
+
+function gotoNextDiff() {
+  if (diffNav.value.total <= 0) return
+  const idx = diffNav.value.index >= diffNav.value.total - 1 ? 0 : diffNav.value.index + 1
+  scrollToDiffAt(idx)
+}
 
 function splitLines(s) {
   if (!s) return []
@@ -561,8 +792,15 @@ async function stageSelected() {
 // Unstage selected files
 async function unstageSelected() {
   if (!window.electronAPI || selectedFiles.value.length === 0) return
-  
-  const result = await window.electronAPI.reset(props.currentRepo.path, selectedFiles.value)
+
+  const stagedSet = new Set(status.value.staged.map(f => f.path))
+  const filesToUnstage = selectedFiles.value.filter(p => stagedSet.has(p))
+  if (filesToUnstage.length === 0) {
+    alert('请先勾选「已暂存」区域的文件')
+    return
+  }
+
+  const result = await window.electronAPI.reset(props.currentRepo.path, filesToUnstage)
   
   if (result.success) {
     await loadStatus()
@@ -608,28 +846,47 @@ async function ignoreSingle(filePath) {
 // View diff
 async function viewDiff(filePath, staged = null) {
   if (!window.electronAPI) return
-  
-  const versions = await window.electronAPI.getFileVersions(props.currentRepo.path, filePath)
-  localContent.value = versions?.localContent ?? '(无法读取本地文件)'
-  gitContent.value = versions?.gitContent ?? '(无法读取 Git 当前版本)'
-
-  const aligned = buildAlignedDiff(localContent.value, gitContent.value)
-  localLines.value = aligned.left
-  gitLines.value = aligned.right
 
   activeFile.value = { path: filePath, staged: !!staged }
+  isLoading.value = true
+  localContent.value = ''
+  gitContent.value = ''
+  localLines.value = []
+  gitLines.value = []
+
+  try {
+    const versions = await window.electronAPI.getFileVersions(props.currentRepo.path, filePath)
+    localContent.value = versions?.localContent ?? '(无法读取本地文件)'
+    gitContent.value = versions?.gitContent ?? '(无法读取 Git 当前版本)'
+
+    const aligned = buildAlignedDiff(localContent.value, gitContent.value)
+    localLines.value = aligned.left
+    gitLines.value = aligned.right
+
+    await nextTick()
+    diffNav.value.index = -1
+    updateDiffNavTotal()
+    if (diffNav.value.total > 0) {
+      scrollToDiffAt(0)
+    }
+  } finally {
+    isLoading.value = false
+  }
 }
 
 function openDiff(filePath, staged) {
+  if (activeFile.value?.path === filePath && activeFile.value?.staged === !!staged) return
   viewDiff(filePath, staged)
 }
 
 function clearDiff() {
   activeFile.value = null
+  isLoading.value = false
   localContent.value = ''
   gitContent.value = ''
   localLines.value = []
   gitLines.value = []
+  diffNav.value = { total: 0, index: -1 }
 }
 
 // Watch for repo changes
@@ -666,12 +923,6 @@ watch(() => props.currentRepo, () => {
   border-radius: 6px;
   margin-bottom: 16px;
   flex-wrap: wrap;
-}
-
-.toolbar-actions {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
 }
 
 .toolbar button {
@@ -802,6 +1053,64 @@ watch(() => props.currentRepo, () => {
   background: #3c3c3c !important;
 }
 
+/* Context menu */
+.ctx-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+.ctx-menu {
+  position: fixed;
+  min-width: 220px;
+  background: #252526;
+  border: 1px solid #3c3c3c;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  padding: 8px;
+}
+
+.ctx-title {
+  padding: 6px 8px 8px;
+  color: #aaa;
+  font-size: 12px;
+  border-bottom: 1px solid #3c3c3c;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ctx-sub {
+  color: #666;
+  margin-left: 6px;
+}
+
+.ctx-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #d4d4d4;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.ctx-item:hover:not(:disabled) {
+  background: #2a2d2e;
+}
+
+.ctx-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ctx-item.danger {
+  color: #f85149;
+}
+
 /* Empty State */
 .empty-state {
   text-align: center;
@@ -827,6 +1136,7 @@ watch(() => props.currentRepo, () => {
 .changes-right {
   min-width: 0;
   display: flex;
+  overflow: auto;
 }
 
 .diff-viewer,
@@ -838,6 +1148,8 @@ watch(() => props.currentRepo, () => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  position: relative;
 }
 
 .diff-viewer-header {
@@ -884,6 +1196,37 @@ watch(() => props.currentRepo, () => {
   min-height: 0;
 }
 
+.diff-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(30, 30, 30, 0.65);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+
+.spinner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: rgba(255, 255, 255, 0.85);
+  animation: spin 0.9s linear infinite;
+}
+
+.diff-loading-text {
+  font-size: 12px;
+  color: #d4d4d4;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .diff-pane {
   display: flex;
   flex-direction: column;
@@ -899,6 +1242,44 @@ watch(() => props.currentRepo, () => {
   color: #aaa;
   background: #2d2d2d;
   border-bottom: 1px solid #3c3c3c;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.diff-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.diff-nav-btn {
+  background: #3c3c3c;
+  border: 1px solid #4c4c4c;
+  color: #d4d4d4;
+  width: 24px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1;
+  font-size: 12px;
+}
+
+.diff-nav-btn:hover:not(:disabled) {
+  background: #4c4c4c;
+}
+
+.diff-nav-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.diff-nav-count {
+  font-size: 11px;
+  color: #888;
+  min-width: 44px;
+  text-align: right;
 }
 
 .diff-content {
