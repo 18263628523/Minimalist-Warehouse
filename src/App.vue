@@ -28,6 +28,7 @@
           title="文件变更"
           ready-text="暂无可用变更"
           :current-repo="currentRepo"
+          mode="changes"
         />
 
         <StatusPanel

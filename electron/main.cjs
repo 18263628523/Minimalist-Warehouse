@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 const fs = require('fs')
-const { execSync } = require('child_process')
+const { execSync, spawnSync } = require('child_process')
 
 let mainWindow = null
 
@@ -66,6 +66,164 @@ ipcMain.handle('git:getRemote', async (event, repoPath) => {
     return output.trim() || null
   } catch (error) {
     return null
+  }
+})
+
+function runGit(repoPath, args) {
+  const result = spawnSync('git', args, {
+    cwd: repoPath,
+    encoding: 'utf-8',
+    windowsHide: true
+  })
+  if (result.error) {
+    throw result.error
+  }
+  if (result.status !== 0) {
+    const msg = (result.stderr || result.stdout || '').trim() || `git ${args.join(' ')} failed`
+    const err = new Error(msg)
+    err.code = result.status
+    throw err
+  }
+  return (result.stdout || '').toString()
+}
+
+function parseStatusPorcelain(output) {
+  const status = { modified: [], staged: [], untracked: [], deleted: [] }
+  const lines = output.split('\n').map(l => l.trimEnd()).filter(Boolean)
+
+  for (const line of lines) {
+    // Format: XY<space>path  OR  ?? path
+    const x = line[0]
+    const y = line[1]
+    let filePath = line.slice(3)
+
+    // Renames: "R  old -> new" / "RM old -> new"
+    const arrow = ' -> '
+    const arrowIdx = filePath.indexOf(arrow)
+    if (arrowIdx !== -1) {
+      filePath = filePath.slice(arrowIdx + arrow.length)
+    }
+
+    if (x === '?' && y === '?') {
+      status.untracked.push({ path: filePath, status: '??' })
+      continue
+    }
+
+    const isDeleted = x === 'D' || y === 'D'
+    if (isDeleted) {
+      status.deleted.push({ path: filePath, status: `${x}${y}`.trim() })
+      continue
+    }
+
+    if (x && x !== ' ') {
+      status.staged.push({ path: filePath, status: x })
+    }
+
+    if (y && y !== ' ') {
+      status.modified.push({ path: filePath, status: y })
+    }
+  }
+
+  return status
+}
+
+ipcMain.handle('git:getStatus', async (event, repoPath) => {
+  try {
+    const output = runGit(repoPath, ['status', '--porcelain=v1', '-uall'])
+    return parseStatusPorcelain(output)
+  } catch (error) {
+    return { modified: [], staged: [], untracked: [], deleted: [], error: error.message }
+  }
+})
+
+ipcMain.handle('git:add', async (event, repoPath, files = []) => {
+  try {
+    const args = ['add', '--']
+    for (const f of files) args.push(f)
+    runGit(repoPath, args)
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('git:reset', async (event, repoPath, files = []) => {
+  try {
+    const args = ['reset', 'HEAD', '--']
+    for (const f of files) args.push(f)
+    runGit(repoPath, args)
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('git:checkout', async (event, repoPath, files = []) => {
+  try {
+    const args = ['checkout', '--']
+    for (const f of files) args.push(f)
+    runGit(repoPath, args)
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('git:diff', async (event, repoPath, filePath) => {
+  try {
+    return runGit(repoPath, ['diff', '--', filePath])
+  } catch (error) {
+    return ''
+  }
+})
+
+ipcMain.handle('git:diffCached', async (event, repoPath, filePath) => {
+  try {
+    return runGit(repoPath, ['diff', '--cached', '--', filePath])
+  } catch (error) {
+    return ''
+  }
+})
+
+ipcMain.handle('git:getFileVersions', async (event, repoPath, filePath) => {
+  const absolutePath = path.join(repoPath, filePath)
+  let localContent = ''
+  let gitContent = ''
+
+  try {
+    if (fs.existsSync(absolutePath)) {
+      localContent = fs.readFileSync(absolutePath, 'utf-8')
+    } else {
+      localContent = '(本地文件不存在或已删除)'
+    }
+  } catch (error) {
+    localContent = `(无法读取本地文件: ${error.message})`
+  }
+
+  try {
+    gitContent = runGit(repoPath, ['show', `HEAD:${filePath}`])
+  } catch (error) {
+    gitContent = '(Git 当前版本中不存在该文件)'
+  }
+
+  return { localContent, gitContent }
+})
+
+ipcMain.handle('git:addToIgnore', async (event, repoPath, filePath) => {
+  try {
+    const ignorePath = path.join(repoPath, '.gitignore')
+    let content = ''
+    if (fs.existsSync(ignorePath)) {
+      content = fs.readFileSync(ignorePath, 'utf-8')
+    }
+    const lines = content.split(/\r?\n/)
+    if (!lines.includes(filePath)) {
+      const next = (content && !content.endsWith('\n')) ? content + '\n' : content
+      fs.writeFileSync(ignorePath, next + filePath + '\n', 'utf-8')
+    }
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
   }
 })
 
