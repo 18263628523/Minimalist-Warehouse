@@ -75,12 +75,11 @@
           :current-repo="currentRepo"
         />
 
-        <StatusPanel
+        <SyncPanel
           v-else-if="activeTab === 'sync'"
           title="远程同步"
-          ready-text=""
           :current-repo="currentRepo"
-          mode="sync"
+          @synced="loadRepoStatus"
         />
       </main>
     </div>
@@ -92,6 +91,7 @@ import { ref, onMounted } from 'vue'
 import RepoPanel from './components/RepoPanel.vue'
 import StatusPanel from './components/StatusPanel.vue'
 import CommitPanel from './components/CommitPanel.vue'
+import SyncPanel from './components/SyncPanel.vue'
 
 const activeTab = ref('repo')
 const currentRepo = ref(null)

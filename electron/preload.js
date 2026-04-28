@@ -26,6 +26,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   commitAndPush: (path, message) => ipcRenderer.invoke('git:commitAndPush', path, message),
   lastCommitMsg: (path) => ipcRenderer.invoke('git:lastCommitMsg', path),
   currentBranch: (path) => ipcRenderer.invoke('git:currentBranch', path),
+  pull: (path) => ipcRenderer.invoke('git:pull', path),
+  fetch: (path) => ipcRenderer.invoke('git:fetch', path),
+  remoteBranches: (path) => ipcRenderer.invoke('git:remoteBranches', path),
+  trackingBranch: (path) => ipcRenderer.invoke('git:trackingBranch', path),
+  aheadBehind: (path) => ipcRenderer.invoke('git:aheadBehind', path),
+  addRemote: (path, name, url) => ipcRenderer.invoke('git:addRemote', path, name, url),
+  removeRemote: (path, name) => ipcRenderer.invoke('git:removeRemote', path, name),
+  getRemoteUrl: (path, name) => ipcRenderer.invoke('git:getRemoteUrl', path, name),
   
   // File system
   readDir: (path) => ipcRenderer.invoke('fs:readDir', path),

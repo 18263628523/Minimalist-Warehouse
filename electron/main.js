@@ -336,3 +336,85 @@ ipcMain.handle('git:currentBranch', async (event, repoPath) => {
     return ''
   }
 })
+
+// Git pull
+ipcMain.handle('git:pull', async (event, repoPath) => {
+  try {
+    execSync('git pull', { cwd: repoPath, encoding: 'utf-8' })
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Git fetch
+ipcMain.handle('git:fetch', async (event, repoPath) => {
+  try {
+    execSync('git fetch --all', { cwd: repoPath, encoding: 'utf-8' })
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Get remote branches
+ipcMain.handle('git:remoteBranches', async (event, repoPath) => {
+  try {
+    const output = execSync('git branch -r', { cwd: repoPath, encoding: 'utf-8' })
+    const branches = output.trim().split('\n').filter(b => b.trim())
+    return branches
+  } catch (error) {
+    return []
+  }
+})
+
+// Get tracking branch info
+ipcMain.handle('git:trackingBranch', async (event, repoPath) => {
+  try {
+    const output = execSync('git rev-parse --abbrev-ref --symbolic-full-name @{u}', { cwd: repoPath, encoding: 'utf-8' })
+    return output.trim()
+  } catch (error) {
+    return ''
+  }
+})
+
+// Get ahead/behind count
+ipcMain.handle('git:aheadBehind', async (event, repoPath) => {
+  try {
+    const output = execSync('git rev-list --left-right --count @{u}...HEAD', { cwd: repoPath, encoding: 'utf-8' })
+    const [behind, ahead] = output.trim().split('\t').map(Number)
+    return { ahead, behind }
+  } catch (error) {
+    return { ahead: 0, behind: 0 }
+  }
+})
+
+// Add remote
+ipcMain.handle('git:addRemote', async (event, repoPath, name, url) => {
+  try {
+    execSync('git remote add ' + name + ' ' + url, { cwd: repoPath, encoding: 'utf-8' })
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Remove remote
+ipcMain.handle('git:removeRemote', async (event, repoPath, name) => {
+  try {
+    execSync('git remote remove ' + name, { cwd: repoPath, encoding: 'utf-8' })
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Get remote URL
+ipcMain.handle('git:getRemoteUrl', async (event, repoPath, remoteName) => {
+  try {
+    const output = execSync('git remote get-url ' + (remoteName || 'origin'), { cwd: repoPath, encoding: 'utf-8' })
+    return output.trim()
+  } catch (error) {
+    return ''
+  }
+})

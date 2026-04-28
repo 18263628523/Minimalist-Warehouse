@@ -227,6 +227,74 @@ ipcMain.handle('git:addToIgnore', async (event, repoPath, filePath) => {
   }
 })
 
+ipcMain.handle('git:commit', async (event, repoPath, message) => {
+  try {
+    runGit(repoPath, ['commit', '-m', message])
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('git:commitAmend', async (event, repoPath, message, noEdit = false) => {
+  try {
+    if (noEdit) {
+      runGit(repoPath, ['commit', '--amend', '--no-edit'])
+    } else {
+      runGit(repoPath, ['commit', '--amend', '-m', message])
+    }
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('git:push', async (event, repoPath) => {
+  try {
+    runGit(repoPath, ['push'])
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('git:pushSetUpstream', async (event, repoPath, remote, branch) => {
+  try {
+    runGit(repoPath, ['push', '-u', remote, branch])
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('git:commitAndPush', async (event, repoPath, message) => {
+  try {
+    runGit(repoPath, ['commit', '-m', message])
+    runGit(repoPath, ['push'])
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('git:lastCommitMsg', async (event, repoPath) => {
+  try {
+    const output = runGit(repoPath, ['log', '-1', '--pretty=%B'])
+    return output.trim()
+  } catch (error) {
+    return ''
+  }
+})
+
+ipcMain.handle('git:currentBranch', async (event, repoPath) => {
+  try {
+    const output = runGit(repoPath, ['branch', '--show-current'])
+    return output.trim()
+  } catch (error) {
+    return ''
+  }
+})
+
 // Get list of files in directory
 ipcMain.handle('fs:readDir', async (event, dirPath) => {
   try {
