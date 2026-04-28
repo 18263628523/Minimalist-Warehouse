@@ -1,16 +1,5 @@
 <template>
   <aside class="sidebar">
-    <nav>
-      <button
-        v-for="tab in tabs"
-        :key="tab.id"
-        :class="['tab-btn', { active: activeTab === tab.id }]"
-        @click="$emit('change-tab', tab.id)"
-      >
-        {{ tab.name }}
-      </button>
-    </nav>
-
     <div class="repo-info" v-if="currentRepo">
       <div class="repo-path" :title="currentRepo.path">
         {{ currentRepo.name }}
@@ -19,23 +8,23 @@
         {{ hasRemote ? '已关联远程' : '未关联远程' }}
       </div>
     </div>
+    <div class="repo-info empty" v-else>
+      <div class="repo-path">未选择仓库</div>
+      <div class="repo-status">请在「仓库」中打开仓库</div>
+    </div>
   </aside>
 </template>
 
 <script setup>
 defineProps({
-  tabs: { type: Array, required: true },
-  activeTab: { type: String, required: true },
   currentRepo: { type: Object, default: null },
   hasRemote: { type: Boolean, required: true }
 })
-
-defineEmits(['change-tab'])
 </script>
 
 <style scoped>
 .sidebar {
-  width: 180px;
+  width: 220px;
   background: #252526;
   border-right: 1px solid #3c3c3c;
   padding: 8px;
@@ -43,34 +32,16 @@ defineEmits(['change-tab'])
   flex-direction: column;
 }
 
-.tab-btn {
-  display: block;
-  width: 100%;
-  padding: 10px 12px;
-  background: transparent;
-  border: none;
-  color: #d4d4d4;
-  text-align: left;
-  cursor: pointer;
-  border-radius: 4px;
-  margin-bottom: 4px;
-  font-size: 14px;
-}
-
-.tab-btn:hover {
-  background: #2a2d2e;
-}
-
-.tab-btn.active {
-  background: #37373d;
-}
-
 .repo-info {
-  margin-top: auto;
+  margin-top: 8px;
   padding: 12px;
   background: #1e1e1e;
   border-radius: 4px;
   font-size: 12px;
+}
+
+.repo-info.empty {
+  color: #888;
 }
 
 .repo-path {

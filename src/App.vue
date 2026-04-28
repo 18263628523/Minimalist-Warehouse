@@ -1,17 +1,39 @@
 <template>
   <div class="app-container">
     <header class="header">
-      <h1>Git Client</h1>
+      <div class="header-left">
+        <h1>Git Client</h1>
+        <nav class="top-nav">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            :class="['top-tab', { active: activeTab === tab.id }]"
+            @click="activeTab = tab.id"
+          >
+            {{ tab.name }}
+          </button>
+        </nav>
+      </div>
+
+      <div class="header-repo">
+        <template v-if="currentRepo">
+          <div class="repo-name" :title="currentRepo.path">{{ currentRepo.name }}</div>
+          <div class="repo-meta">
+            <span class="repo-status" :class="{ 'has-remote': hasRemote }">
+              {{ hasRemote ? '已关联远程' : '未关联远程' }}
+            </span>
+            <span class="repo-path" :title="currentRepo.path">{{ currentRepo.path }}</span>
+          </div>
+        </template>
+        <template v-else>
+          <div class="repo-name empty">未选择仓库</div>
+          <div class="repo-meta">
+            <span class="repo-status">请先打开仓库</span>
+          </div>
+        </template>
+      </div>
     </header>
     <div class="main-content">
-      <AppSidebar
-        :tabs="tabs"
-        :active-tab="activeTab"
-        :current-repo="currentRepo"
-        :has-remote="hasRemote"
-        @change-tab="activeTab = $event"
-      />
-
       <main class="content">
         <RepoPanel
           v-if="activeTab === 'repo'"
@@ -67,7 +89,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import AppSidebar from './components/AppSidebar.vue'
 import RepoPanel from './components/RepoPanel.vue'
 import StatusPanel from './components/StatusPanel.vue'
 
@@ -186,14 +207,109 @@ body {
 }
 
 .header {
-  padding: 16px 24px;
+  padding: 12px 16px;
   background: #252526;
   border-bottom: 1px solid #3c3c3c;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 64px;
+  box-sizing: border-box;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
 }
 
 .header h1 {
   font-size: 18px;
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.top-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.top-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #d4d4d4;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.top-tab:hover {
+  background: #2a2d2e;
+}
+
+.top-tab.active {
+  background: #37373d;
+  border-color: #3c3c3c;
+}
+
+.header-repo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 240px;
+  max-width: 520px;
+  padding: 6px 10px;
+  background: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  border-radius: 8px;
+  height: 52px;
+  justify-content: center;
+}
+
+.repo-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.repo-name.empty {
+  color: #888;
+}
+
+.repo-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  height: 16px;
+}
+
+.repo-status {
+  font-size: 12px;
+  color: #888;
+  white-space: nowrap;
+}
+
+.repo-status.has-remote {
+  color: #4ec9b0;
+}
+
+.repo-path {
+  font-size: 12px;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .main-content {
