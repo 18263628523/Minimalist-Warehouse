@@ -295,6 +295,65 @@ ipcMain.handle('git:currentBranch', async (event, repoPath) => {
   }
 })
 
+ipcMain.handle('git:trackingBranch', async (event, repoPath) => {
+  try {
+    const output = runGit(repoPath, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}'])
+    return output.trim()
+  } catch (error) {
+    return ''
+  }
+})
+
+ipcMain.handle('git:getRemoteUrl', async (event, repoPath, remoteName = 'origin') => {
+  try {
+    const output = runGit(repoPath, ['remote', 'get-url', remoteName])
+    return output.trim()
+  } catch (error) {
+    return ''
+  }
+})
+
+ipcMain.handle('git:aheadBehind', async (event, repoPath) => {
+  try {
+    // Output: "<behind> <ahead>" for "@{u}...HEAD" with --left-right
+    const output = runGit(repoPath, ['rev-list', '--left-right', '--count', '@{u}...HEAD']).trim()
+    const [behindStr = '0', aheadStr = '0'] = output.split(/\s+/)
+    return {
+      ahead: Number(aheadStr) || 0,
+      behind: Number(behindStr) || 0
+    }
+  } catch (error) {
+    return { ahead: 0, behind: 0 }
+  }
+})
+
+ipcMain.handle('git:fetch', async (event, repoPath) => {
+  try {
+    const output = runGit(repoPath, ['fetch', '--prune'])
+    return { success: true, output }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('git:pull', async (event, repoPath) => {
+  try {
+    const output = runGit(repoPath, ['pull'])
+    return { success: true, output }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+ipcMain.handle('git:addRemote', async (event, repoPath, remoteName, remoteUrl) => {
+  try {
+    runGit(repoPath, ['remote', 'add', remoteName, remoteUrl])
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
 // Get list of files in directory
 ipcMain.handle('fs:readDir', async (event, dirPath) => {
   try {
