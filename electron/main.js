@@ -130,3 +130,135 @@ ipcMain.handle('recent:add', (event, repoPath) => {
     return { success: false, error: error.message }
   }
 })
+
+// Get git status - all changed files
+ipcMain.handle('git:status', async (event, repoPath) => {
+  try {
+    const output = execSync('git status --porcelain', { cwd: repoPath, encoding: 'utf-8' })
+    const files = {
+      modified: [],
+      staged: [],
+      untracked: [],
+      deleted: []
+    }
+    
+    if (!output.trim()) return files
+    
+    const lines = output.trim().split('\n')
+    for (const line of lines) {
+      const indexStatus = line.charAt(0)
+      const workTreeStatus = line.charAt(1)
+      const filePath = line.substring(3).trim()
+      
+      // Parse file status
+      // X          Y           meaning
+      // [M]       [M]         modified in index, modified in work tree
+      // [A]       [ ]         added to index
+      // [D]       [D]         deleted from index, deleted in work tree
+      // [R]       [R]         renamed in index, renamed in work tree
+      // [?]        [?]         untracked
+      // [!]        [!]         ignored
+      
+      // Staged files (index)
+      if (indexStatus !== ' ' && indexStatus !== '?') {
+        files.staged.push({ path: filePath, status: indexStatus })
+      }
+      
+      // Work tree changes
+      if (workTreeStatus === 'M') {
+        files.modified.push({ path: filePath })
+      } else if (workTreeStatus === 'D') {
+        files.deleted.push({ path: filePath })
+      } else if (workTreeStatus === '?' || indexStatus === '?') {
+        files.untracked.push({ path: filePath })
+      }
+    }
+    
+    return files
+  } catch (error) {
+    return { modified: [], staged: [], untracked: [], deleted: [] }
+  }
+})
+
+// Git add file(s)
+ipcMain.handle('git:add', async (event, repoPath, files) => {
+  try {
+    if (files && files.length > 0) {
+      execSync('git add ' + files.map(f => '"' + f + '"').join(' '), { cwd: repoPath, encoding: 'utf-8' })
+    } else {
+      execSync('git add .', { cwd: repoPath, encoding: 'utf-8' })
+    }
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Git reset file(s) - unstage
+ipcMain.handle('git:reset', async (event, repoPath, files) => {
+  try {
+    if (files && files.length > 0) {
+      execSync('git reset HEAD -- ' + files.map(f => '"' + f + '"').join(' '), { cwd: repoPath, encoding: 'utf-8' })
+    } else {
+      execSync('git reset HEAD', { cwd: repoPath, encoding: 'utf-8' })
+    }
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Git checkout/restore file(s) - discard changes
+ipcMain.handle('git:checkout', async (event, repoPath, files) => {
+  try {
+    execSync('git checkout -- ' + files.map(f => '"' + f + '"').join(' '), { cwd: repoPath, encoding: 'utf-8' })
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Git restore file(s) - staged changes
+ipcMain.handle('git:restore', async (event, repoPath, files) => {
+  try {
+    execSync('git restore --staged ' + files.map(f => '"' + f + '"').join(' '), { cwd: repoPath, encoding: 'utf-8' })
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Git diff file
+ipcMain.handle('git:diff', async (event, repoPath, filePath) => {
+  try {
+    const output = execSync('git diff ' + (filePath ? '"' + filePath + '"' : ''), { cwd: repoPath, encoding: 'utf-8' })
+    return output
+  } catch (error) {
+    return ''
+  }
+})
+
+// Git diff --cached file (staged)
+ipcMain.handle('git:diffCached', async (event, repoPath, filePath) => {
+  try {
+    const output = execSync('git diff --cached ' + (filePath ? '"' + filePath + '"' : ''), { cwd: repoPath, encoding: 'utf-8' })
+    return output
+  } catch (error) {
+    return ''
+  }
+})
+
+// Add to .gitignore
+ipcMain.handle('git:addToIgnore', async (event, repoPath, filePath) => {
+  try {
+    const gitignorePath = path.join(repoPath, '.gitignore')
+    const content = fs.existsSync(gitignorePath) ? fs.readFileSync(gitignorePath, 'utf-8') : ''
+    
+    if (!content.includes(filePath)) {
+      fs.writeFileSync(gitignorePath, content + '\n' + filePath + '\n')
+    }
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
