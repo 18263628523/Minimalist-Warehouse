@@ -221,7 +221,7 @@ ipcMain.handle('git:checkout', async (event, repoPath, files = []) => {
 
 ipcMain.handle('git:diff', async (event, repoPath, filePath) => {
   try {
-    return runGit(repoPath, ['diff', '--', filePath])
+    return runGit(repoPath, ['-c', 'core.quotepath=false', 'diff', '--', filePath])
   } catch (error) {
     return ''
   }
@@ -229,7 +229,7 @@ ipcMain.handle('git:diff', async (event, repoPath, filePath) => {
 
 ipcMain.handle('git:diffCached', async (event, repoPath, filePath) => {
   try {
-    return runGit(repoPath, ['diff', '--cached', '--', filePath])
+    return runGit(repoPath, ['-c', 'core.quotepath=false', 'diff', '--cached', '--', filePath])
   } catch (error) {
     return ''
   }
@@ -466,7 +466,7 @@ ipcMain.handle('git:rebaseBranches', async (event, repoPath, branchToRebase, ont
 // Diff between two branches (content diff)
 ipcMain.handle('git:diffBranches', async (event, repoPath, baseBranch, compareBranch) => {
   try {
-    return runGit(repoPath, ['diff', `${baseBranch}...${compareBranch}`])
+    return runGit(repoPath, ['-c', 'core.quotepath=false', 'diff', `${baseBranch}...${compareBranch}`])
   } catch (error) {
     return ''
   }
