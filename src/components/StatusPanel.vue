@@ -3,10 +3,10 @@
     <div class="panel-header">
       <h2 class="panel-title">{{ title }}</h2>
       <div v-if="currentRepo" class="toolbar">
-        <button @click="refreshStatus" class="btn-refresh" title="刷新">
-          🔄 刷新
+        <button @click="refreshStatus" class="btn-refresh" title="刷新" :disabled="isAnyActionLoading">
+          {{ isActionLoading('refresh') ? '⏳ 刷新中...' : '🔄 刷新' }}
         </button>
-        <button @click="selectAll" class="btn-select" title="全选">
+        <button @click="selectAll" class="btn-select" title="全选" :disabled="isAnyActionLoading">
           {{ allSelected ? '☑ 全选' : '☐ 全选' }}
         </button>
       </div>
@@ -98,17 +98,17 @@
                   暂无待提交文件，请先在上方暂存
                 </p>
                 <div class="commit-actions">
-                  <button type="button" class="btn-commit-primary" :disabled="!canCommit" title="提交到本地仓库" @click="doCommit">
-                    ✓ 提交
+                  <button type="button" class="btn-commit-primary" :disabled="!canCommit || isAnyActionLoading" title="提交到本地仓库" @click="doCommit">
+                    {{ isActionLoading('commit') ? '提交中...' : '✓ 提交' }}
                   </button>
                   <button
                     type="button"
                     class="btn-commit-push"
-                    :disabled="!canCommit || !hasRemote"
+                    :disabled="!canCommit || !hasRemote || isAnyActionLoading"
                     title="提交并推送到远程"
                     @click="doCommitAndPush"
                   >
-                    ↑ 提交并推送
+                    {{ isActionLoading('commitPush') ? '推送中...' : '↑ 提交并推送' }}
                   </button>
                 </div>
                 <div
@@ -141,8 +141,8 @@
                     @change="toggleSelect(file.path)"
                   />
                   <span class="file-path">{{ file.path }}</span>
-                  <button class="btn-icon" @click.stop="ignoreSingle(file.path)" title="添加到 .gitignore">
-                    ⊘
+                  <button class="btn-icon" @click.stop="ignoreSingle(file.path)" title="添加到 .gitignore" :disabled="isAnyActionLoading">
+                    {{ isActionLoading(`ignore:${file.path}`) ? '...' : '⊘' }}
                   </button>
                 </div>
               </div>
@@ -255,17 +255,17 @@
             <span class="ctx-sub" v-if="ctx.count > 1">({{ ctx.count }} 个)</span>
           </div>
 
-          <button class="ctx-item" :disabled="!canStage" @click="ctxStage">
-            + 暂存
+          <button class="ctx-item" :disabled="!canStage || isAnyActionLoading" @click="ctxStage">
+            {{ isActionLoading('ctxStage') ? '处理中...' : '+ 暂存' }}
           </button>
-          <button class="ctx-item" :disabled="!canUnstage" @click="ctxUnstage">
-            - 取消暂存
+          <button class="ctx-item" :disabled="!canUnstage || isAnyActionLoading" @click="ctxUnstage">
+            {{ isActionLoading('ctxUnstage') ? '处理中...' : '- 取消暂存' }}
           </button>
-          <button class="ctx-item danger" :disabled="!canDiscard" @click="ctxDiscard">
-            ↩ 撤销更改
+          <button class="ctx-item danger" :disabled="!canDiscard || isAnyActionLoading" @click="ctxDiscard">
+            {{ isActionLoading('ctxDiscard') ? '处理中...' : '↩ 撤销更改' }}
           </button>
-          <button class="ctx-item" :disabled="!canIgnore" @click="ctxIgnore">
-            ⊘ 忽略（加入 .gitignore）
+          <button class="ctx-item" :disabled="!canIgnore || isAnyActionLoading" @click="ctxIgnore">
+            {{ isActionLoading('ctxIgnore') ? '处理中...' : '⊘ 忽略（加入 .gitignore）' }}
           </button>
         </div>
       </div>
@@ -310,6 +310,7 @@ const localLines = ref([])
 const gitLines = ref([])
 const activeFile = ref(null)
 const isLoading = ref(false)
+const actionLoading = ref('')
 
 const localScrollEl = ref(null)
 const gitScrollEl = ref(null)
@@ -356,6 +357,11 @@ const canDiscard = computed(() => {
   return ctxSelection.value.some(p => modified.has(p) || deleted.has(p))
 })
 const canIgnore = computed(() => ctxSelection.value.length > 0)
+const isAnyActionLoading = computed(() => actionLoading.value !== '')
+
+function isActionLoading(action) {
+  return actionLoading.value === action
+}
 
 function openContextMenu(e, filePath) {
   ctx.value.visible = true
@@ -401,29 +407,53 @@ async function ignorePaths(paths) {
 }
 
 async function ctxStage() {
+  if (isAnyActionLoading.value) return
   const { staged } = fileSets.value
   const files = ctxSelection.value.filter(p => !staged.has(p))
-  await stagePaths(files)
-  closeContextMenu()
+  actionLoading.value = 'ctxStage'
+  try {
+    await stagePaths(files)
+    closeContextMenu()
+  } finally {
+    actionLoading.value = ''
+  }
 }
 
 async function ctxUnstage() {
+  if (isAnyActionLoading.value) return
   const { staged } = fileSets.value
   const files = ctxSelection.value.filter(p => staged.has(p))
-  await unstagePaths(files)
-  closeContextMenu()
+  actionLoading.value = 'ctxUnstage'
+  try {
+    await unstagePaths(files)
+    closeContextMenu()
+  } finally {
+    actionLoading.value = ''
+  }
 }
 
 async function ctxDiscard() {
+  if (isAnyActionLoading.value) return
   const { modified, deleted } = fileSets.value
   const files = ctxSelection.value.filter(p => modified.has(p) || deleted.has(p))
-  await discardPaths(files)
-  closeContextMenu()
+  actionLoading.value = 'ctxDiscard'
+  try {
+    await discardPaths(files)
+    closeContextMenu()
+  } finally {
+    actionLoading.value = ''
+  }
 }
 
 async function ctxIgnore() {
-  await ignorePaths(ctxSelection.value)
-  closeContextMenu()
+  if (isAnyActionLoading.value) return
+  actionLoading.value = 'ctxIgnore'
+  try {
+    await ignorePaths(ctxSelection.value)
+    closeContextMenu()
+  } finally {
+    actionLoading.value = ''
+  }
 }
 
 function syncScroll(from, to) {
@@ -813,33 +843,43 @@ async function loadLastCommit() {
 }
 
 async function doCommit() {
-  if (!window.electronAPI || !canCommit.value) return
-  commitResult.value = null
-  let result
-  if (useAmend.value) {
-    result = await window.electronAPI.commitAmend(props.currentRepo.path, commitMessage.value, false)
-  } else {
-    result = await window.electronAPI.commit(props.currentRepo.path, commitMessage.value)
+  if (!window.electronAPI || !canCommit.value || isAnyActionLoading.value) return
+  actionLoading.value = 'commit'
+  try {
+    commitResult.value = null
+    let result
+    if (useAmend.value) {
+      result = await window.electronAPI.commitAmend(props.currentRepo.path, commitMessage.value, false)
+    } else {
+      result = await window.electronAPI.commit(props.currentRepo.path, commitMessage.value)
+    }
+    commitResult.value = result
+    if (result.success) {
+      commitMessage.value = ''
+      useAmend.value = false
+    }
+    // 失败时也刷新：与 Git 真实状态对齐，避免界面停留在过期列表或空白
+    await loadStatus()
+  } finally {
+    actionLoading.value = ''
   }
-  commitResult.value = result
-  if (result.success) {
-    commitMessage.value = ''
-    useAmend.value = false
-  }
-  // 失败时也刷新：与 Git 真实状态对齐，避免界面停留在过期列表或空白
-  await loadStatus()
 }
 
 async function doCommitAndPush() {
-  if (!window.electronAPI || !canCommit.value) return
-  commitResult.value = null
-  const result = await window.electronAPI.commitAndPush(props.currentRepo.path, commitMessage.value)
-  commitResult.value = result
-  if (result.success) {
-    commitMessage.value = ''
-    useAmend.value = false
+  if (!window.electronAPI || !canCommit.value || isAnyActionLoading.value) return
+  actionLoading.value = 'commitPush'
+  try {
+    commitResult.value = null
+    const result = await window.electronAPI.commitAndPush(props.currentRepo.path, commitMessage.value)
+    commitResult.value = result
+    if (result.success) {
+      commitMessage.value = ''
+      useAmend.value = false
+    }
+    await loadStatus()
+  } finally {
+    actionLoading.value = ''
   }
-  await loadStatus()
 }
 
 // Load status
@@ -859,8 +899,14 @@ async function loadStatus() {
 }
 
 // Refresh status
-function refreshStatus() {
-  loadStatus()
+async function refreshStatus() {
+  if (isAnyActionLoading.value) return
+  actionLoading.value = 'refresh'
+  try {
+    await loadStatus()
+  } finally {
+    actionLoading.value = ''
+  }
 }
 
 // Toggle file selection
@@ -955,10 +1001,15 @@ async function ignoreSelected() {
 
 // Ignore single file
 async function ignoreSingle(filePath) {
-  if (!window.electronAPI) return
-  
-  await window.electronAPI.addToIgnore(props.currentRepo.path, filePath)
-  await loadStatus()
+  if (!window.electronAPI || isAnyActionLoading.value) return
+  const actionKey = `ignore:${filePath}`
+  actionLoading.value = actionKey
+  try {
+    await window.electronAPI.addToIgnore(props.currentRepo.path, filePath)
+    await loadStatus()
+  } finally {
+    actionLoading.value = ''
+  }
 }
 
 // View diff

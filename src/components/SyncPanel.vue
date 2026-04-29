@@ -54,8 +54,8 @@
 
         <div v-else class="no-remote">
           <p>未关联远程仓库</p>
-          <button @click="showAddRemote = true" class="btn-primary">
-            + 添加远程
+          <button @click="showAddRemote = true" class="btn-primary" :disabled="isAnyActionLoading">
+            {{ isAnyActionLoading ? '处理中...' : '+ 添加远程' }}
           </button>
         </div>
       </div>
@@ -72,8 +72,10 @@
           <input v-model="newRemoteUrl" placeholder="https://github.com/user/repo.git" />
         </div>
         <div class="form-actions">
-          <button @click="doAddRemote" class="btn-primary">添加</button>
-          <button @click="showAddRemote = false">取消</button>
+          <button @click="doAddRemote" class="btn-primary" :disabled="isAddRemoteLoading">
+            {{ isAddRemoteLoading ? '添加中...' : '添加' }}
+          </button>
+          <button @click="showAddRemote = false" :disabled="isAddRemoteLoading">取消</button>
         </div>
       </div>
 
@@ -85,10 +87,10 @@
           <div class="action-group">
             <button 
               @click="doFetch" 
-              :disabled="isLoading"
+              :disabled="isAnyActionLoading"
               class="btn-fetch"
             >
-              {{ isLoading ? '获取中...' : '📥 获取 (fetch)' }}
+              {{ isActionLoading('fetch') ? '获取中...' : '📥 获取 (fetch)' }}
             </button>
             <p class="hint">获取远程更新，不合并</p>
           </div>
@@ -96,10 +98,10 @@
           <div class="action-group">
             <button 
               @click="doPull" 
-              :disabled="isLoading || !hasRemote"
+              :disabled="isAnyActionLoading || !hasRemote"
               class="btn-pull"
             >
-              {{ isLoading ? '拉取中...' : '⬇️ 拉取 (pull)' }}
+              {{ isActionLoading('pull') ? '拉取中...' : '⬇️ 拉取 (pull)' }}
             </button>
             <p class="hint">拉取并合并远程更改</p>
           </div>
@@ -107,10 +109,10 @@
           <div class="action-group">
             <button 
               @click="doPush" 
-              :disabled="isLoading || !hasRemote"
+              :disabled="isAnyActionLoading || !hasRemote"
               class="btn-push"
             >
-              {{ isLoading ? '推送中...' : '⬆️ 推送 (push)' }}
+              {{ isActionLoading('push') ? '推送中...' : '⬆️ 推送 (push)' }}
             </button>
             <p class="hint">推送到远程仓库</p>
           </div>
@@ -165,7 +167,7 @@ const remoteUrl = ref('')
 const aheadBehind = ref({ ahead: 0, behind: 0 })
 const unpushedFiles = ref([])
 const unpushedNote = ref('')
-const isLoading = ref(false)
+const activeAction = ref('')
 const isRefreshing = ref(false)
 const syncResult = ref(null)
 const showProgress = ref(false)
@@ -175,12 +177,18 @@ const newRemoteName = ref('origin')
 const newRemoteUrl = ref('')
 
 const hasRemote = computed(() => !!remoteUrl.value)
+const isAnyActionLoading = computed(() => activeAction.value !== '')
+const isAddRemoteLoading = computed(() => activeAction.value === 'addRemote')
 
 const isConflictError = computed(() => {
   if (!syncResult.value || syncResult.value.success) return false
   const error = syncResult.value.error || ''
   return error.includes('conflict') || error.includes('CONFLICT')
 })
+
+function isActionLoading(action) {
+  return activeAction.value === action
+}
 
 // Load remote info
 async function loadRemoteInfo() {
@@ -225,7 +233,7 @@ async function refreshRemote() {
 async function doFetch() {
   if (!window.electronAPI) return
   
-  isLoading.value = true
+  activeAction.value = 'fetch'
   showProgress.value = true
   progressPercent.value = 30
   syncResult.value = null
@@ -242,7 +250,7 @@ async function doFetch() {
     syncResult.value = result
   }
   
-  isLoading.value = false
+  activeAction.value = ''
   setTimeout(() => { showProgress.value = false }, 2000)
 }
 
@@ -250,7 +258,7 @@ async function doFetch() {
 async function doPull() {
   if (!window.electronAPI) return
   
-  isLoading.value = true
+  activeAction.value = 'pull'
   showProgress.value = true
   progressPercent.value = 0
   syncResult.value = null
@@ -275,7 +283,7 @@ async function doPull() {
     syncResult.value = result
   }
   
-  isLoading.value = false
+  activeAction.value = ''
   setTimeout(() => { showProgress.value = false }, 2000)
 }
 
@@ -283,7 +291,7 @@ async function doPull() {
 async function doPush() {
   if (!window.electronAPI) return
   
-  isLoading.value = true
+  activeAction.value = 'push'
   showProgress.value = true
   progressPercent.value = 0
   syncResult.value = null
@@ -306,7 +314,7 @@ async function doPush() {
     syncResult.value = result
   }
   
-  isLoading.value = false
+  activeAction.value = ''
   setTimeout(() => { showProgress.value = false }, 2000)
 }
 
@@ -314,6 +322,7 @@ async function doPush() {
 async function doAddRemote() {
   if (!window.electronAPI || !newRemoteName.value || !newRemoteUrl.value) return
   
+  activeAction.value = 'addRemote'
   const result = await window.electronAPI.addRemote(
     props.currentRepo.path,
     newRemoteName.value,
@@ -329,6 +338,7 @@ async function doAddRemote() {
   } else {
     alert('添加失败: ' + result.error)
   }
+  activeAction.value = ''
 }
 
 // Watch for repo changes

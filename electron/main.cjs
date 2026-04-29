@@ -179,7 +179,7 @@ function parseStatusPorcelain(output) {
 
 ipcMain.handle('git:getStatus', async (event, repoPath) => {
   try {
-    const output = runGit(repoPath, ['status', '--porcelain=v1', '-uall'])
+    const output = runGit(repoPath, ['-c', 'core.quotepath=false', 'status', '--porcelain=v1', '-uall'])
     return parseStatusPorcelain(output)
   } catch (error) {
     return { modified: [], staged: [], untracked: [], deleted: [], error: error.message }
