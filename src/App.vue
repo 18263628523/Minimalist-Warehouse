@@ -50,15 +50,9 @@
           title="文件变更"
           ready-text="暂无可用变更"
           :current-repo="currentRepo"
+          :has-remote="hasRemote"
           mode="changes"
           ref="statusPanelRef"
-        />
-
-        <CommitPanel
-          v-else-if="activeTab === 'commit'"
-          title="提交"
-          :current-repo="currentRepo"
-          @committed="loadRepoStatus"
         />
 
         <StatusPanel
@@ -90,7 +84,6 @@
 import { ref, onMounted } from 'vue'
 import RepoPanel from './components/RepoPanel.vue'
 import StatusPanel from './components/StatusPanel.vue'
-import CommitPanel from './components/CommitPanel.vue'
 import SyncPanel from './components/SyncPanel.vue'
 
 const activeTab = ref('repo')
@@ -102,7 +95,6 @@ const statusPanelRef = ref(null)
 const tabs = [
   { id: 'repo', name: '仓库' },
   { id: 'changes', name: '变更' },
-  { id: 'commit', name: '提交' },
   { id: 'branches', name: '分支' },
   { id: 'log', name: '日志' },
   { id: 'sync', name: '同步' }
