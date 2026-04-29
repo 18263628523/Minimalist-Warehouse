@@ -11,7 +11,10 @@
       <div class="remote-info">
         <div class="remote-header">
           <h3>远程仓库</h3>
-          <button @click="refreshRemote" class="btn-small">🔄 刷新</button>
+          <button @click="refreshRemote" :disabled="isRefreshing" class="btn-small btn-refresh">
+            <span :class="['refresh-icon', { spinning: isRefreshing }]">🔄</span>
+            <span>{{ isRefreshing ? '刷新中...' : '刷新' }}</span>
+          </button>
         </div>
 
         <div v-if="hasRemote" class="remote-detail">
@@ -39,6 +42,14 @@
               <span class="label">↓ 远程领先</span>
             </div>
           </div>
+
+          <div v-if="unpushedFiles.length > 0" class="unpushed-files">
+            <div class="unpushed-title">未推送文件 ({{ unpushedFiles.length }})</div>
+            <ul>
+              <li v-for="file in unpushedFiles" :key="file">{{ file }}</li>
+            </ul>
+          </div>
+          <p v-else-if="unpushedNote" class="unpushed-note">{{ unpushedNote }}</p>
         </div>
 
         <div v-else class="no-remote">
@@ -121,6 +132,7 @@
         <template v-else>
           <p class="error-title">✕ 操作失败</p>
           <p class="error-message">{{ syncResult.error }}</p>
+          <pre v-if="syncResult.output" class="output">{{ syncResult.output }}</pre>
           <!-- Parse common errors -->
           <div v-if="isConflictError" class="error-hint">
             <p>检测到冲突!请:</p>
@@ -151,7 +163,10 @@ const currentBranch = ref('')
 const trackingBranch = ref('')
 const remoteUrl = ref('')
 const aheadBehind = ref({ ahead: 0, behind: 0 })
+const unpushedFiles = ref([])
+const unpushedNote = ref('')
 const isLoading = ref(false)
+const isRefreshing = ref(false)
 const syncResult = ref(null)
 const showProgress = ref(false)
 const progressPercent = ref(0)
@@ -177,17 +192,33 @@ async function loadRemoteInfo() {
     trackingBranch.value = await window.electronAPI.trackingBranch(props.currentRepo.path)
     remoteUrl.value = await window.electronAPI.getRemoteUrl(props.currentRepo.path, 'origin')
     aheadBehind.value = await window.electronAPI.aheadBehind(props.currentRepo.path)
+    const unpushed = await window.electronAPI.unpushedFiles(props.currentRepo.path)
+    if (unpushed?.success) {
+      unpushedFiles.value = unpushed.files || []
+      unpushedNote.value = unpushed.note || ''
+    } else {
+      unpushedFiles.value = []
+      unpushedNote.value = ''
+    }
   } catch (e) {
     trackingBranch.value = ''
     remoteUrl.value = ''
     aheadBehind.value = { ahead: 0, behind: 0 }
+    unpushedFiles.value = []
+    unpushedNote.value = ''
   }
 }
 
 // Refresh
-function refreshRemote() {
+async function refreshRemote() {
+  if (isRefreshing.value) return
+  isRefreshing.value = true
   syncResult.value = null
-  loadRemoteInfo()
+  try {
+    await loadRemoteInfo()
+  } finally {
+    isRefreshing.value = false
+  }
 }
 
 // Fetch
@@ -237,7 +268,7 @@ async function doPull() {
   progressPercent.value = 100
   
   if (result.success) {
-    syncResult.value = { success: true, output: '已拉取并合并远程更改' }
+    syncResult.value = { success: true, output: result.output || '已拉取并合并远程更改' }
     await loadRemoteInfo()
     emit('synced')
   } else {
@@ -269,7 +300,7 @@ async function doPush() {
   progressPercent.value = 100
   
   if (result.success) {
-    syncResult.value = { success: true, output: '已推送到远程仓库' }
+    syncResult.value = { success: true, output: result.output || '已推送到远程仓库' }
     await loadRemoteInfo()
   } else {
     syncResult.value = result
@@ -340,6 +371,9 @@ watch(() => props.currentRepo, () => {
 }
 
 .btn-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: #3c3c3c;
   color: #d4d4d4;
   border: none;
@@ -351,6 +385,25 @@ watch(() => props.currentRepo, () => {
 
 .btn-small:hover {
   background: #4c4c4c;
+}
+
+.btn-refresh:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.refresh-icon {
+  display: inline-block;
+  transform-origin: center;
+}
+
+.refresh-icon.spinning {
+  animation: spin-refresh 0.9s linear infinite;
+}
+
+@keyframes spin-refresh {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .remote-detail {
@@ -405,6 +458,38 @@ watch(() => props.currentRepo, () => {
 }
 
 .status-item .label {
+  font-size: 12px;
+  color: #888;
+}
+
+.unpushed-files {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #3c3c3c;
+}
+
+.unpushed-title {
+  font-size: 12px;
+  color: #969696;
+  margin-bottom: 6px;
+}
+
+.unpushed-files ul {
+  margin: 0;
+  padding-left: 18px;
+  max-height: 140px;
+  overflow: auto;
+}
+
+.unpushed-files li {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #d4d4d4;
+  word-break: break-all;
+}
+
+.unpushed-note {
+  margin-top: 10px;
   font-size: 12px;
   color: #888;
 }

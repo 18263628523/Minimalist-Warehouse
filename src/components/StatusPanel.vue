@@ -1,14 +1,8 @@
 <template>
   <div class="panel">
-    <h2>{{ title }}</h2>
-
-    <p v-if="!currentRepo" class="no-repo">
-      请先在「仓库管理」中打开一个 Git 仓库
-    </p>
-
-    <template v-else>
-      <!-- Toolbar -->
-      <div class="toolbar">
+    <div class="panel-header">
+      <h2 class="panel-title">{{ title }}</h2>
+      <div v-if="currentRepo" class="toolbar">
         <button @click="refreshStatus" class="btn-refresh" title="刷新">
           🔄 刷新
         </button>
@@ -16,7 +10,17 @@
           {{ allSelected ? '☑ 全选' : '☐ 全选' }}
         </button>
       </div>
+    </div>
 
+    <p v-if="currentRepo && status.error" class="status-error-banner">
+      读取 Git 状态失败：{{ status.error }}
+    </p>
+
+    <p v-if="!currentRepo" class="no-repo">
+      请先在「仓库管理」中打开一个 Git 仓库
+    </p>
+
+    <template v-else>
       <div class="changes-layout" v-if="mode === 'changes'">
         <!-- File Lists (Left) -->
         <div class="changes-left">
@@ -66,6 +70,53 @@
                     @change="toggleSelect(file.path)"
                   />
                   <span class="file-path">{{ file.path }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 提交（原「提交」页） -->
+            <div class="file-section commit-inline">
+              <h3 class="section-title commit-section-title">提交</h3>
+              <div class="commit-inline-body">
+                <label class="commit-label">提交信息</label>
+                <textarea
+                  v-model="commitMessage"
+                  class="commit-textarea"
+                  rows="3"
+                  placeholder="输入提交信息..."
+                />
+                <div class="commit-amend">
+                  <label>
+                    <input type="checkbox" v-model="useAmend" />
+                    追加到上一次提交 (amend)
+                  </label>
+                  <span v-if="useAmend && lastCommitMsg" class="commit-amend-hint">
+                    上次: {{ lastCommitMsg }}
+                  </span>
+                </div>
+                <p v-if="status.staged.length === 0" class="commit-no-staged">
+                  暂无待提交文件，请先在上方暂存
+                </p>
+                <div class="commit-actions">
+                  <button type="button" class="btn-commit-primary" :disabled="!canCommit" title="提交到本地仓库" @click="doCommit">
+                    ✓ 提交
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-commit-push"
+                    :disabled="!canCommit || !hasRemote"
+                    title="提交并推送到远程"
+                    @click="doCommitAndPush"
+                  >
+                    ↑ 提交并推送
+                  </button>
+                </div>
+                <div
+                  v-if="commitResult"
+                  class="commit-result-msg"
+                  :class="{ success: commitResult.success, error: !commitResult.success }"
+                >
+                  {{ commitResult.success ? '提交成功!' : '提交失败: ' + formatCommitError(commitResult.error) }}
                 </div>
               </div>
             </div>
@@ -221,8 +272,7 @@
 
       <!-- Non-changes modes -->
       <template v-else>
-        <textarea v-if="mode === 'textarea'" placeholder="提交信息..."></textarea>
-        <div v-else-if="mode === 'sync'">
+        <div v-if="mode === 'sync'">
           <button>拉取</button>
           <button>推送</button>
         </div>
@@ -239,7 +289,8 @@ const props = defineProps({
   title: { type: String, required: true },
   readyText: { type: String, default: '' },
   currentRepo: { type: Object, default: null },
-  mode: { type: String, default: 'text' }
+  mode: { type: String, default: 'text' },
+  hasRemote: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['change'])
@@ -248,7 +299,8 @@ const status = ref({
   modified: [],
   staged: [],
   untracked: [],
-  deleted: []
+  deleted: [],
+  error: undefined
 })
 
 const selectedFiles = ref([])
@@ -731,13 +783,79 @@ const allSelected = computed(() => {
   return allFiles.length > 0 && selectedFiles.value.length === allFiles.length
 })
 
+const commitMessage = ref('')
+const useAmend = ref(false)
+const lastCommitMsg = ref('')
+const commitResult = ref(null)
+
+const canCommit = computed(() => {
+  return commitMessage.value.trim().length > 0 && status.value.staged.length > 0
+})
+
+function formatCommitError(error) {
+  const raw = String(error || '')
+  const normalized = raw.toLowerCase()
+  const isNonFastForward =
+    normalized.includes('non-fast-forward') ||
+    normalized.includes('failed to push some refs') ||
+    normalized.includes('updates were rejected because the tip of your current branch is behind')
+
+  if (isNonFastForward) {
+    return '推送被拒绝：远程分支有新提交，请先拉取最新版本并解决可能的冲突后再推送。'
+  }
+
+  return raw || '未知错误'
+}
+
+async function loadLastCommit() {
+  if (!props.currentRepo || !window.electronAPI) return
+  lastCommitMsg.value = await window.electronAPI.lastCommitMsg(props.currentRepo.path)
+}
+
+async function doCommit() {
+  if (!window.electronAPI || !canCommit.value) return
+  commitResult.value = null
+  let result
+  if (useAmend.value) {
+    result = await window.electronAPI.commitAmend(props.currentRepo.path, commitMessage.value, false)
+  } else {
+    result = await window.electronAPI.commit(props.currentRepo.path, commitMessage.value)
+  }
+  commitResult.value = result
+  if (result.success) {
+    commitMessage.value = ''
+    useAmend.value = false
+  }
+  // 失败时也刷新：与 Git 真实状态对齐，避免界面停留在过期列表或空白
+  await loadStatus()
+}
+
+async function doCommitAndPush() {
+  if (!window.electronAPI || !canCommit.value) return
+  commitResult.value = null
+  const result = await window.electronAPI.commitAndPush(props.currentRepo.path, commitMessage.value)
+  commitResult.value = result
+  if (result.success) {
+    commitMessage.value = ''
+    useAmend.value = false
+  }
+  await loadStatus()
+}
+
 // Load status
 async function loadStatus() {
   if (!props.currentRepo || !window.electronAPI) return
-  
+
   const result = await window.electronAPI.getStatus(props.currentRepo.path)
-  status.value = result
+  status.value = {
+    modified: result?.modified ?? [],
+    staged: result?.staged ?? [],
+    untracked: result?.untracked ?? [],
+    deleted: result?.deleted ?? [],
+    error: result?.error
+  }
   selectedFiles.value = []
+  await loadLastCommit()
 }
 
 // Refresh status
@@ -892,10 +1010,15 @@ function clearDiff() {
 // Watch for repo changes
 watch(() => props.currentRepo, () => {
   if (props.currentRepo) {
+    commitResult.value = null
     loadStatus()
     clearDiff()
   }
 }, { immediate: true })
+
+defineExpose({
+  refreshStatus
+})
 </script>
 
 <style scoped>
@@ -903,9 +1026,30 @@ watch(() => props.currentRepo, () => {
   height: 100%;
 }
 
-.panel h2 {
-  font-size: 18px;
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+
+.status-error-banner {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  background: #5a1d1d;
+  color: #f8d7da;
+  border-radius: 6px;
+  font-size: 13px;
 }
 
 .no-repo {
@@ -918,10 +1062,10 @@ watch(() => props.currentRepo, () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px;
+  flex-shrink: 0;
+  padding: 6px 10px;
   background: #252526;
   border-radius: 6px;
-  margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
@@ -999,6 +1143,127 @@ watch(() => props.currentRepo, () => {
 
 .section-title.deleted {
   color: #f14c4c;
+}
+
+.commit-section-title {
+  color: #c586c0;
+}
+
+.commit-inline-body {
+  padding: 12px 14px 14px;
+}
+
+.commit-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #969696;
+}
+
+.commit-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  color: #d4d4d4;
+  padding: 8px 10px;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 13px;
+  min-height: 56px;
+}
+
+.commit-textarea:focus {
+  outline: none;
+  border-color: #0e639c;
+}
+
+.commit-amend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.commit-amend label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.commit-amend-hint {
+  color: #888;
+  font-style: italic;
+}
+
+.commit-no-staged {
+  margin-top: 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #888;
+  background: #1e1e1e;
+  border-radius: 4px;
+}
+
+.commit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.btn-commit-primary,
+.btn-commit-push {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #d4d4d4;
+  background: #3c3c3c;
+}
+
+.btn-commit-primary:hover:not(:disabled),
+.btn-commit-push:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+.btn-commit-primary:disabled,
+.btn-commit-push:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-commit-primary {
+  background: #238636;
+  color: white;
+}
+
+.btn-commit-push {
+  background: #0e639c;
+  color: white;
+}
+
+.commit-result-msg {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.commit-result-msg.success {
+  background: rgba(35, 134, 54, 0.2);
+  color: #4ec9b0;
+}
+
+.commit-result-msg.error {
+  background: rgba(218, 54, 51, 0.2);
+  color: #f85149;
 }
 
 .file-list {
@@ -1123,7 +1388,7 @@ watch(() => props.currentRepo, () => {
 /* Changes layout: left list + right diff viewer */
 .changes-layout {
   display: grid;
-  grid-template-columns: var(--changes-left-width, 200px) 1fr;
+  grid-template-columns: var(--changes-left-width, 260px) 1fr;
   gap: 12px;
   height: calc(100% - 64px);
   min-height: 520px;

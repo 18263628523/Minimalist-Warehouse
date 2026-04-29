@@ -87,12 +87,62 @@ function runGit(repoPath, args) {
   return (result.stdout || '').toString()
 }
 
+function pushWithAutoUpstream(repoPath) {
+  const flow = []
+  const appendOutput = (output) => {
+    const text = String(output || '').trim()
+    if (text) flow.push(text)
+  }
+
+  try {
+    flow.push('执行: git push')
+    const output = runGit(repoPath, ['push'])
+    appendOutput(output)
+    flow.push('结果: 推送成功')
+    return { success: true, output: flow.join('\n') }
+  } catch (error) {
+    const raw = String(error?.message || '')
+    const normalized = raw.toLowerCase()
+    const noUpstream = normalized.includes('has no upstream branch')
+    flow.push(`报错: ${raw}`)
+
+    if (!noUpstream) {
+      return { success: false, error: raw, output: flow.join('\n') }
+    }
+
+    try {
+      const branch = runGit(repoPath, ['branch', '--show-current']).trim()
+      if (!branch) {
+        flow.push('结果: 未检测到当前分支，无法自动设置上游')
+        return {
+          success: false,
+          error: '推送失败：当前不在有效分支上，无法自动设置上游分支。',
+          output: flow.join('\n')
+        }
+      }
+      flow.push(`检测到无上游分支，执行: git push -u origin ${branch}`)
+      const output = runGit(repoPath, ['push', '-u', 'origin', branch])
+      appendOutput(output)
+      flow.push('结果: 推送成功（已自动设置上游分支）')
+      return { success: true, output: flow.join('\n') }
+    } catch (setUpstreamError) {
+      const upErr = String(setUpstreamError?.message || '')
+      flow.push(`自动设置上游失败: ${upErr}`)
+      return {
+        success: false,
+        error: `推送失败：当前分支未设置上游分支，且自动设置失败：${upErr}`,
+        output: flow.join('\n')
+      }
+    }
+  }
+}
+
 function parseStatusPorcelain(output) {
   const status = { modified: [], staged: [], untracked: [], deleted: [] }
   const lines = output.split('\n').map(l => l.trimEnd()).filter(Boolean)
 
   for (const line of lines) {
-    // Format: XY<space>path  OR  ?? path
+    // Format: XY<space>path  OR  ?? path (porcelain v1)
     const x = line[0]
     const y = line[1]
     let filePath = line.slice(3)
@@ -109,18 +159,18 @@ function parseStatusPorcelain(output) {
       continue
     }
 
-    const isDeleted = x === 'D' || y === 'D'
-    if (isDeleted) {
-      status.deleted.push({ path: filePath, status: `${x}${y}`.trim() })
-      continue
-    }
-
-    if (x && x !== ' ') {
+    // Index (staged) + work tree must both be applied. Do not short-circuit on D:
+    // e.g. "AD" is still staged as add while work tree shows deleted; "D " is a staged deletion.
+    if (x !== ' ' && x !== '?') {
       status.staged.push({ path: filePath, status: x })
     }
 
-    if (y && y !== ' ') {
+    if (y === 'M') {
       status.modified.push({ path: filePath, status: y })
+    } else if (y === 'D') {
+      status.deleted.push({ path: filePath, status: `${x}${y}`.trim() })
+    } else if (y === '?' || x === '?') {
+      status.untracked.push({ path: filePath, status: y === '?' ? '??' : `${x}${y}`.trim() })
     }
   }
 
@@ -250,12 +300,9 @@ ipcMain.handle('git:commitAmend', async (event, repoPath, message, noEdit = fals
 })
 
 ipcMain.handle('git:push', async (event, repoPath) => {
-  try {
-    runGit(repoPath, ['push'])
-    return { success: true }
-  } catch (error) {
-    return { success: false, error: error.message }
-  }
+  const result = pushWithAutoUpstream(repoPath)
+  if (result.success) return { success: true, output: result.output }
+  return { success: false, error: result.error }
 })
 
 ipcMain.handle('git:pushSetUpstream', async (event, repoPath, remote, branch) => {
@@ -270,8 +317,11 @@ ipcMain.handle('git:pushSetUpstream', async (event, repoPath, remote, branch) =>
 ipcMain.handle('git:commitAndPush', async (event, repoPath, message) => {
   try {
     runGit(repoPath, ['commit', '-m', message])
-    runGit(repoPath, ['push'])
-    return { success: true }
+    const pushResult = pushWithAutoUpstream(repoPath)
+    if (!pushResult.success) {
+      return { success: false, error: pushResult.error }
+    }
+    return { success: true, output: pushResult.output }
   } catch (error) {
     return { success: false, error: error.message }
   }
@@ -327,6 +377,23 @@ ipcMain.handle('git:aheadBehind', async (event, repoPath) => {
   }
 })
 
+ipcMain.handle('git:unpushedFiles', async (event, repoPath) => {
+  try {
+    const output = runGit(repoPath, ['diff', '--name-only', '@{u}..HEAD'])
+    const files = output
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean)
+    return { success: true, files }
+  } catch (error) {
+    const raw = String(error?.message || '')
+    if (raw.toLowerCase().includes('no upstream configured for branch')) {
+      return { success: true, files: [], note: '当前分支未设置上游分支，暂无法计算未推送文件。' }
+    }
+    return { success: false, error: raw, files: [] }
+  }
+})
+
 ipcMain.handle('git:fetch', async (event, repoPath) => {
   try {
     const output = runGit(repoPath, ['fetch', '--prune'])
@@ -337,11 +404,127 @@ ipcMain.handle('git:fetch', async (event, repoPath) => {
 })
 
 ipcMain.handle('git:pull', async (event, repoPath) => {
+  const isDivergentPullError = (msg) => {
+    const text = String(msg || '').toLowerCase()
+    return text.includes('need to specify how to reconcile divergent branches')
+  }
+  const isUnrelatedHistoriesError = (msg) => {
+    const text = String(msg || '').toLowerCase()
+    return text.includes('refusing to merge unrelated histories')
+  }
+  const flow = []
+  const appendOutput = (output) => {
+    const text = String(output || '').trim()
+    if (text) flow.push(text)
+  }
+
   try {
+    flow.push('执行: git pull')
     const output = runGit(repoPath, ['pull'])
-    return { success: true, output }
+    appendOutput(output)
+    flow.push('结果: 拉取成功')
+    return { success: true, output: flow.join('\n') }
   } catch (error) {
-    return { success: false, error: error.message }
+    const raw = String(error?.message || '')
+    const normalized = raw.toLowerCase()
+    const noTracking = normalized.includes('there is no tracking information for the current branch')
+    flow.push(`报错: ${raw}`)
+
+    if (noTracking) {
+      try {
+        flow.push('检测到无上游分支，准备读取当前分支')
+        const branch = runGit(repoPath, ['branch', '--show-current']).trim()
+        if (branch) {
+          // 默认使用 merge 策略，避免在未配置 pull.rebase 时因分叉而失败
+          flow.push(`执行: git pull --no-rebase origin ${branch}`)
+          const output = runGit(repoPath, ['pull', '--no-rebase', 'origin', branch])
+          appendOutput(output)
+          flow.push('结果: 拉取成功（已使用 origin + 当前分支）')
+          return { success: true, output: flow.join('\n') }
+        }
+      } catch (fallbackError) {
+        const fallbackMsg = String(fallbackError?.message || '')
+        flow.push(`自动拉取 origin 失败: ${fallbackMsg}`)
+        if (isUnrelatedHistoriesError(fallbackMsg)) {
+          try {
+            const branch = runGit(repoPath, ['branch', '--show-current']).trim()
+            if (branch) {
+              flow.push(`执行: git pull --no-rebase --allow-unrelated-histories origin ${branch}`)
+              const output = runGit(repoPath, ['pull', '--no-rebase', '--allow-unrelated-histories', 'origin', branch])
+              appendOutput(output)
+              flow.push('结果: 拉取成功（允许 unrelated histories）')
+              return { success: true, output: flow.join('\n') }
+            }
+          } catch (retryError) {
+            const retryMsg = String(retryError?.message || '')
+            flow.push(`重试失败: ${retryMsg}`)
+            return {
+              success: false,
+              error: `本地与远程历史无共同祖先，自动合并失败：${retryMsg}。请确认这是你期望合并的两个历史后再操作。`,
+              output: flow.join('\n')
+            }
+          }
+        }
+        if (isDivergentPullError(fallbackMsg)) {
+          flow.push('结果: 分支已分叉，自动拉取中止')
+          return {
+            success: false,
+            error: '本地与远程分支已分叉，自动拉取失败。请先处理分叉（建议先提交当前改动），再执行拉取并解决冲突。',
+            output: flow.join('\n')
+          }
+        }
+        return {
+          success: false,
+          error: `当前分支未设置上游分支，自动拉取 origin 失败：${fallbackMsg}。请先执行：git push -u origin <分支名> 或 git branch --set-upstream-to=origin/<分支名> <分支名>`,
+          output: flow.join('\n')
+        }
+      }
+
+      flow.push('结果: 未读取到当前分支，无法自动指定 origin/<branch>')
+      return {
+        success: false,
+        error: '当前分支未设置上游分支。请先执行：git push -u origin <分支名> 或 git branch --set-upstream-to=origin/<分支名> <分支名>',
+        output: flow.join('\n')
+      }
+    }
+
+    if (isDivergentPullError(raw)) {
+      try {
+        flow.push('检测到分支分叉，执行: git pull --no-rebase')
+        const output = runGit(repoPath, ['pull', '--no-rebase'])
+        appendOutput(output)
+        flow.push('结果: 拉取成功（已按 merge 策略）')
+        return { success: true, output: flow.join('\n') }
+      } catch (retryError) {
+        const retryMsg = String(retryError?.message || '')
+        flow.push(`重试失败: ${retryMsg}`)
+        return {
+          success: false,
+          error: `本地与远程分支已分叉，自动按 merge 策略拉取失败：${retryMsg}`,
+          output: flow.join('\n')
+        }
+      }
+    }
+
+    if (isUnrelatedHistoriesError(raw)) {
+      try {
+        flow.push('检测到 unrelated histories，执行: git pull --no-rebase --allow-unrelated-histories')
+        const output = runGit(repoPath, ['pull', '--no-rebase', '--allow-unrelated-histories'])
+        appendOutput(output)
+        flow.push('结果: 拉取成功（允许 unrelated histories）')
+        return { success: true, output: flow.join('\n') }
+      } catch (retryError) {
+        const retryMsg = String(retryError?.message || '')
+        flow.push(`重试失败: ${retryMsg}`)
+        return {
+          success: false,
+          error: `本地与远程历史无共同祖先，自动合并失败：${retryMsg}。请确认这是你期望合并的两个历史后再操作。`,
+          output: flow.join('\n')
+        }
+      }
+    }
+
+    return { success: false, error: raw, output: flow.join('\n') }
   }
 })
 
