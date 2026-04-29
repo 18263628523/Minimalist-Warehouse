@@ -55,11 +55,11 @@
           ref="statusPanelRef"
         />
 
-        <StatusPanel
+        <BranchesPanel
           v-else-if="activeTab === 'branches'"
           title="分支管理"
-          ready-text="暂无分支"
           :current-repo="currentRepo"
+          :has-remote="hasRemote"
         />
 
         <StatusPanel
@@ -85,6 +85,7 @@ import { ref, onMounted } from 'vue'
 import RepoPanel from './components/RepoPanel.vue'
 import StatusPanel from './components/StatusPanel.vue'
 import SyncPanel from './components/SyncPanel.vue'
+import BranchesPanel from './components/BranchesPanel.vue'
 
 const activeTab = ref('repo')
 const currentRepo = ref(null)

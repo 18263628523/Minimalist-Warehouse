@@ -28,8 +28,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
   currentBranch: (path) => ipcRenderer.invoke('git:currentBranch', path),
   pull: (path) => ipcRenderer.invoke('git:pull', path),
   fetch: (path) => ipcRenderer.invoke('git:fetch', path),
-  remoteBranches: (path) => ipcRenderer.invoke('git:remoteBranches', path),
   trackingBranch: (path) => ipcRenderer.invoke('git:trackingBranch', path),
+
+  // Branch operations
+  branches: (path) => ipcRenderer.invoke('git:branches', path),
+  remoteBranches: (path) => ipcRenderer.invoke('git:remoteBranches', path),
+  switchBranch: (path, branchName) => ipcRenderer.invoke('git:switchBranch', path, branchName),
+  createBranch: (path, branchName, baseBranch = null) =>
+    ipcRenderer.invoke('git:createBranch', path, branchName, baseBranch),
+  deleteBranch: (path, branchName, force = false) =>
+    ipcRenderer.invoke('git:deleteBranch', path, branchName, force),
+  deleteRemoteBranch: (path, remoteName, branchName) =>
+    ipcRenderer.invoke('git:deleteRemoteBranch', path, remoteName, branchName),
+  mergeBranches: (path, targetBranch, sourceBranch) =>
+    ipcRenderer.invoke('git:mergeBranches', path, targetBranch, sourceBranch),
+  rebaseBranches: (path, branchToRebase, ontoBranch) =>
+    ipcRenderer.invoke('git:rebaseBranches', path, branchToRebase, ontoBranch),
+  diffBranches: (path, baseBranch, compareBranch) =>
+    ipcRenderer.invoke('git:diffBranches', path, baseBranch, compareBranch),
   aheadBehind: (path) => ipcRenderer.invoke('git:aheadBehind', path),
   addRemote: (path, name, url) => ipcRenderer.invoke('git:addRemote', path, name, url),
   removeRemote: (path, name) => ipcRenderer.invoke('git:removeRemote', path, name),

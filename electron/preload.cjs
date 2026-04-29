@@ -24,6 +24,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
   lastCommitMsg: (repoPath) => ipcRenderer.invoke('git:lastCommitMsg', repoPath),
   currentBranch: (repoPath) => ipcRenderer.invoke('git:currentBranch', repoPath),
   trackingBranch: (repoPath) => ipcRenderer.invoke('git:trackingBranch', repoPath),
+
+  // Branch operations
+  branches: (repoPath) => ipcRenderer.invoke('git:branches', repoPath),
+  remoteBranches: (repoPath) => ipcRenderer.invoke('git:remoteBranches', repoPath),
+  switchBranch: (repoPath, branchName) => ipcRenderer.invoke('git:switchBranch', repoPath, branchName),
+  createBranch: (repoPath, branchName, baseBranch = null) =>
+    ipcRenderer.invoke('git:createBranch', repoPath, branchName, baseBranch),
+  deleteBranch: (repoPath, branchName, force = false) =>
+    ipcRenderer.invoke('git:deleteBranch', repoPath, branchName, force),
+  deleteRemoteBranch: (repoPath, remoteName, branchName) =>
+    ipcRenderer.invoke('git:deleteRemoteBranch', repoPath, remoteName, branchName),
+  mergeBranches: (repoPath, targetBranch, sourceBranch) =>
+    ipcRenderer.invoke('git:mergeBranches', repoPath, targetBranch, sourceBranch),
+  rebaseBranches: (repoPath, branchToRebase, ontoBranch) =>
+    ipcRenderer.invoke('git:rebaseBranches', repoPath, branchToRebase, ontoBranch),
+  diffBranches: (repoPath, baseBranch, compareBranch) =>
+    ipcRenderer.invoke('git:diffBranches', repoPath, baseBranch, compareBranch),
+
   getRemoteUrl: (repoPath, remoteName = 'origin') => ipcRenderer.invoke('git:getRemoteUrl', repoPath, remoteName),
   aheadBehind: (repoPath) => ipcRenderer.invoke('git:aheadBehind', repoPath),
   unpushedFiles: (repoPath) => ipcRenderer.invoke('git:unpushedFiles', repoPath),

@@ -354,6 +354,124 @@ ipcMain.handle('git:trackingBranch', async (event, repoPath) => {
   }
 })
 
+// Get list of local branches
+ipcMain.handle('git:branches', async (event, repoPath) => {
+  try {
+    const output = runGit(repoPath, [
+      'for-each-ref',
+      '--format=%(refname:short)',
+      'refs/heads'
+    ])
+    return output
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean)
+  } catch (error) {
+    return []
+  }
+})
+
+// Get list of remote branches (e.g. origin/main)
+ipcMain.handle('git:remoteBranches', async (event, repoPath) => {
+  try {
+    const output = runGit(repoPath, [
+      'for-each-ref',
+      '--format=%(refname:short)',
+      'refs/remotes'
+    ])
+
+    return output
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean)
+      // Filter out the symbolic HEAD entry like "origin/HEAD"
+      .filter(b => !b.endsWith('/HEAD'))
+  } catch (error) {
+    return []
+  }
+})
+
+// Switch branch (git switch with fallback to git checkout)
+ipcMain.handle('git:switchBranch', async (event, repoPath, branchName) => {
+  try {
+    runGit(repoPath, ['switch', branchName])
+    return { success: true }
+  } catch (error) {
+    try {
+      runGit(repoPath, ['checkout', branchName])
+      return { success: true }
+    } catch (fallbackError) {
+      return { success: false, error: fallbackError.message }
+    }
+  }
+})
+
+// Create local branch
+ipcMain.handle('git:createBranch', async (event, repoPath, branchName, baseBranch = null) => {
+  try {
+    if (baseBranch) {
+      runGit(repoPath, ['switch', '-c', branchName, baseBranch])
+    } else {
+      runGit(repoPath, ['switch', '-c', branchName])
+    }
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Delete local branch
+ipcMain.handle('git:deleteBranch', async (event, repoPath, branchName, force = false) => {
+  try {
+    const flag = force ? '-D' : '-d'
+    runGit(repoPath, ['branch', flag, branchName])
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Delete remote branch (remoteName: origin, branchName: main)
+ipcMain.handle('git:deleteRemoteBranch', async (event, repoPath, remoteName, branchName) => {
+  try {
+    runGit(repoPath, ['push', remoteName, '--delete', branchName])
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Merge branches: checkout target then merge source into it
+ipcMain.handle('git:mergeBranches', async (event, repoPath, targetBranch, sourceBranch) => {
+  try {
+    runGit(repoPath, ['switch', targetBranch])
+    const output = runGit(repoPath, ['merge', sourceBranch])
+    return { success: true, output: output.trim() }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Rebase branches: checkout branch then rebase onto ontoBranch
+ipcMain.handle('git:rebaseBranches', async (event, repoPath, branchToRebase, ontoBranch) => {
+  try {
+    runGit(repoPath, ['switch', branchToRebase])
+    const output = runGit(repoPath, ['rebase', ontoBranch])
+    return { success: true, output: output.trim() }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+})
+
+// Diff between two branches (content diff)
+ipcMain.handle('git:diffBranches', async (event, repoPath, baseBranch, compareBranch) => {
+  try {
+    return runGit(repoPath, ['diff', `${baseBranch}...${compareBranch}`])
+  } catch (error) {
+    return ''
+  }
+})
+
 ipcMain.handle('git:getRemoteUrl', async (event, repoPath, remoteName = 'origin') => {
   try {
     const output = runGit(repoPath, ['remote', 'get-url', remoteName])

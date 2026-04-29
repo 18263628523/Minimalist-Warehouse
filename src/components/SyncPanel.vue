@@ -110,7 +110,7 @@
               :disabled="isLoading || !hasRemote"
               class="btn-push"
             >
-              {{ isLoading ? '推送中...' : '⬆️ 推��� (push)' }}
+              {{ isLoading ? '推送中...' : '⬆️ 推送 (push)' }}
             </button>
             <p class="hint">推送到远程仓库</p>
           </div>
