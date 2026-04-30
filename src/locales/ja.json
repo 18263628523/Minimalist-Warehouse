@@ -1,0 +1,245 @@
+{
+  "app": { "title": "Git Client" },
+  "tabs": {
+    "repo": "リポジトリ",
+    "changes": "変更",
+    "branches": "ブランチ",
+    "log": "履歴",
+    "sync": "同期"
+  },
+  "repo": {
+    "linkedRemote": "リモート連携済み",
+    "noRemote": "リモートなし",
+    "noSelection": "リポジトリ未選択",
+    "openFirst": "先にリポジトリを開いてください"
+  },
+  "panel": {
+    "changesTitle": "ファイルの変更",
+    "changesReady": "変更はありません",
+    "branchesTitle": "ブランチ管理",
+    "logTitle": "コミット履歴",
+    "logReady": "コミットはまだありません",
+    "syncTitle": "リモート同期"
+  },
+  "alerts": {
+    "runInElectron": "Electron 内で実行してください",
+    "notGitRepo": "選択したフォルダは Git リポジトリではありません",
+    "repoCreated": "リポジトリを作成しました。",
+    "createFailed": "作成に失敗しました: {msg}",
+    "folderNotGitAnymore": "このフォルダはもう Git リポジトリではありません"
+  },
+  "language": {
+    "label": "言語",
+    "zhCN": "简体中文",
+    "enUS": "English"
+  },
+  "repoPanel": {
+    "title": "プロジェクト / リポジトリ",
+    "openLocal": "ローカル リポジトリを開く",
+    "createNew": "新規リポジトリ",
+    "currentRepo": "現在のリポジトリ",
+    "pathLabel": "パス:",
+    "statusLabel": "状態:",
+    "recentTitle": "最近開いたリポジトリ",
+    "emptyRecent": "最近のリポジトリはありません"
+  },
+  "changes": {
+    "toolbar": {
+      "refreshTitle": "更新",
+      "refresh": "🔄 更新",
+      "refreshing": "⏳ 更新中…",
+      "selectAllTitle": "すべて選択",
+      "selectAllOn": "☑ すべて選択",
+      "selectAllOff": "☐ すべて選択"
+    },
+    "errors": {
+      "statusReadFailed": "Git の状態を読み取れませんでした: {msg}"
+    },
+    "noRepo": "先に「リポジトリ」タブで Git リポジトリを開いてください。",
+    "section": {
+      "staged": "ステージ済み",
+      "modified": "変更済み",
+      "untracked": "未追跡",
+      "deleted": "削除済み"
+    },
+    "commit": {
+      "title": "コミット",
+      "messageLabel": "コミット メッセージ",
+      "placeholder": "コミット メッセージを入力…",
+      "amend": "前のコミットに追記 (amend)",
+      "lastPrefix": "前回:",
+      "noStaged": "コミット対象がありません。上で先にステージしてください。",
+      "submit": "✓ コミット",
+      "submitting": "コミット中…",
+      "submitTitle": "ローカル リポジトリにコミット",
+      "push": "↑ コミットしてプッシュ",
+      "pushing": "プッシュ中…",
+      "pushTitle": "コミットしてリモートへプッシュ",
+      "success": "コミットしました。",
+      "failed": "コミットに失敗しました: {msg}"
+    },
+    "empty": {
+      "clean": "✓ 作業ツリーはクリーンです"
+    },
+    "diff": {
+      "stagedSuffix": " (ステージ済み)",
+      "unstagedSuffix": " (未ステージ)",
+      "clearTitle": "プレビューをクリア",
+      "localFile": "ローカル ファイル",
+      "gitHead": "Git (HEAD)",
+      "loading": "差分を読み込み中…",
+      "placeholderTitle": "差分プレビュー",
+      "placeholderHint": "左のファイル行をクリックすると比較が表示されます。",
+      "prevHunk": "前の変更",
+      "nextHunk": "次の変更",
+      "localUnreadable": "(ローカル ファイルを読めませんでした)",
+      "gitUnreadable": "(Git の版を読めませんでした)"
+    },
+    "ignoreTitle": ".gitignore に追加",
+    "ctx": {
+      "count": "({n} 件)",
+      "processing": "処理中…",
+      "stage": "+ ステージ",
+      "unstage": "- ステージ解除",
+      "discard": "↩ 変更を破棄",
+      "ignore": "⊘ 無視（.gitignore に追加）"
+    },
+    "alerts": {
+      "stageFailed": "ステージに失敗しました: {msg}",
+      "unstageFailed": "ステージ解除に失敗しました: {msg}",
+      "discardConfirm": "これらのファイルの変更を破棄しますか？元に戻せません。",
+      "discardFailed": "破棄に失敗しました: {msg}",
+      "pickStagedFirst": "先に「ステージ済み」内のファイルを選択してください。"
+    },
+    "commitError": {
+      "pushRejected": "プッシュが拒否されました。リモートに新しいコミットがあります。プルして競合を解消してからプッシュしてください。",
+      "unknown": "不明なエラー"
+    },
+    "stub": {
+      "pull": "プル",
+      "push": "プッシュ"
+    }
+  },
+  "branches": {
+    "toolbar": {
+      "refreshTitle": "更新",
+      "refresh": "🔄 更新",
+      "refreshing": "🔄 更新中…"
+    },
+    "local": {
+      "title": "ローカル ブランチ",
+      "tip": "すべてのローカル ブランチです。クリックで切り替えます。"
+    },
+    "remote": {
+      "title": "リモート ブランチ",
+      "tip": "リモート追跡ブランチ（例: origin/main）。新規ブランチはプッシュするまでローカルのみです。",
+      "readFailed": "リモート ブランチを読み込めませんでした: {msg}",
+      "fetchFailed": "リモート ブランチを読み込めませんでした",
+      "noRemote": "リモートが設定されていません",
+      "empty": "リモート ブランチはありません"
+    },
+    "emptyLocal": "ローカル ブランチはありません",
+    "tooltipOnBranch": "現在のブランチ",
+    "tooltipSwitchTo": "ローカル ブランチ「{branch}」に切り替え",
+    "deleteLocalTitle": "ローカル ブランチを削除",
+    "deleteRemoteTitle": "リモート ブランチを削除",
+    "new": {
+      "title": "新規ブランチ",
+      "name": "名前",
+      "base": "基準",
+      "baseCurrent": "現在のブランチ",
+      "baseCurrentNamed": "現在のブランチ ({branch})",
+      "create": "作成",
+      "creating": "⏳ 作成中…",
+      "hint": "作成されるのはローカル ブランチのみです。GitHub で見るには切り替えてプッシュし、リモートを更新してください。",
+      "hintIconTitle": "ヘルプ"
+    },
+    "merge": {
+      "title": "ブランチのマージ",
+      "tip": "ソースをターゲットにマージ: git switch ターゲット + git merge ソース。",
+      "target": "ターゲット ブランチ",
+      "source": "ソース ブランチ",
+      "btn": "マージ",
+      "merging": "⏳ マージ中…",
+      "ok": "✓ マージ完了",
+      "fail": "✕ マージ失敗: {msg}"
+    },
+    "rebase": {
+      "title": "リベース",
+      "tip": "一方のブランチを他のブランチの上にリベース: git switch ブランチ + git rebase onto。",
+      "branch": "リベースするブランチ",
+      "onto": "onto",
+      "btn": "リベース",
+      "rebasing": "⏳ リベース中…",
+      "ok": "✓ リベース完了",
+      "fail": "✕ リベース失敗: {msg}"
+    },
+    "diff": {
+      "title": "ブランチの差分",
+      "tip": "2 つのブランチを比較: git diff base...compare。",
+      "base": "基準",
+      "compare": "比較",
+      "btn": "差分を表示",
+      "comparing": "⏳ 比較中…",
+      "loading": "差分を読み込み中…",
+      "placeholder": "「差分を表示」をクリックして出力を読み込みます。",
+      "noDiff": "差分なし（または出力が空）。",
+      "fail": "比較に失敗しました: {msg}"
+    },
+    "alerts": {
+      "switchFailed": "切り替えに失敗しました: {msg}",
+      "createFailed": "作成に失敗しました: {msg}",
+      "cannotDeleteCurrent": "使用中のブランチは削除できません。先に切り替えてください。",
+      "deleteLocalConfirm": "ローカル ブランチ「{name}」を削除しますか？",
+      "forceDeleteConfirm": "削除に失敗しました。マージが完了していない可能性があります。強制削除しますか？",
+      "forceDeleteFailed": "強制削除に失敗しました: {msg}",
+      "deleteFailed": "削除に失敗しました: {msg}",
+      "deleteRemoteConfirm": "リモート ブランチ「{name}」を削除しますか？",
+      "deleteRemoteFailed": "リモート ブランチの削除に失敗しました: {msg}",
+      "mergeConfirm": "「{source}」を「{target}」にマージしますか？",
+      "rebaseConfirm": "「{branch}」を「{onto}」の上にリベースしますか？"
+    }
+  },
+  "sync": {
+    "remoteTitle": "リモート",
+    "refresh": "更新",
+    "refreshing": "更新中…",
+    "remoteBranchLabel": "リモート:",
+    "trackingLabel": "追跡:",
+    "urlLabel": "URL:",
+    "aheadLabel": "↑ 先行",
+    "behindLabel": "↓ 遅れ",
+    "unpushedTitle": "未プッシュのファイル ({n})",
+    "noRemoteLinked": "リモートが設定されていません",
+    "addRemoteBtn": "+ リモートを追加",
+    "processing": "処理中…",
+    "addRemoteFormTitle": "リモートを追加",
+    "name": "名前",
+    "url": "URL",
+    "add": "追加",
+    "adding": "追加中…",
+    "cancel": "キャンセル",
+    "actionsTitle": "同期",
+    "fetch": "📥 Fetch",
+    "fetching": "取得中…",
+    "fetchHint": "マージせずリモートの更新だけ取得",
+    "pull": "⬇️ Pull",
+    "pulling": "プル中…",
+    "pullHint": "リモートの変更を取得してマージ",
+    "push": "⬆️ Push",
+    "pushing": "プッシュ中…",
+    "pushHint": "リモートへプッシュ",
+    "success": "✓ 完了",
+    "errorTitle": "✕ 失敗",
+    "conflictTitle": "マージ競合です。次の手順へ:",
+    "conflictStep1": "「変更」タブで競合ファイルを確認",
+    "conflictStep2": "手動で競合を解消",
+    "conflictStep3": "再度ステージしてコミット",
+    "outputFetchOk": "リモートの更新を取得しました",
+    "outputPullOk": "リモートの変更をプルしてマージしました",
+    "outputPushOk": "リモートへプッシュしました",
+    "alerts": {
+      "addRemoteFailed": "リモートの追加に失敗しました: {msg}"
+    }
+  }
+}

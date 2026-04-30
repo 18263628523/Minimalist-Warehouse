@@ -7,15 +7,15 @@
           @click="refresh"
           class="btn-refresh"
           :disabled="isLoadingAny"
-          title="刷新"
+          :title="t('branches.toolbar.refreshTitle')"
         >
-          {{ opType === 'refresh' ? '🔄 刷新中...' : '🔄 刷新' }}
+          {{ opType === 'refresh' ? t('branches.toolbar.refreshing') : t('branches.toolbar.refresh') }}
         </button>
       </div>
     </div>
 
     <p v-if="!currentRepo" class="no-repo">
-      请先在「仓库管理」中打开一个 Git 仓库
+      {{ t('changes.noRepo') }}
     </p>
 
     <template v-else>
@@ -23,13 +23,13 @@
         <div class="branch-lists">
           <div class="list-card">
             <h3>
-              本地分支
-              <span class="h3-tooltip" data-tooltip="展示所有本地分支；点击即可切换到该分支。">?</span>
+              {{ t('branches.local.title') }}
+              <span class="h3-tooltip" :data-tooltip="t('branches.local.tip')">?</span>
             </h3>
 
             <div class="list">
               <div v-if="!localBranches.length" class="empty">
-                暂无本地分支
+                {{ t('branches.emptyLocal') }}
               </div>
 
               <div
@@ -41,7 +41,7 @@
                   class="branch-name-btn"
                   @click="onSwitch(b)"
                   :disabled="b === currentBranch || isLoadingAny"
-                  :data-tooltip="b === currentBranch ? '已在当前分支' : `切换到本地分支「${b}」`"
+                  :data-tooltip="switchBranchTooltip(b)"
                 >
                   <template v-if="opType === 'switch' && opTarget === b">
                     <span class="inline-loading">⏳</span>{{ b }}
@@ -53,7 +53,7 @@
                 <button
                   class="btn-icon danger"
                   @click.stop="promptDeleteLocal(b)"
-                  title="删除本地分支"
+                  :title="t('branches.deleteLocalTitle')"
                   :disabled="localDeleteDisabled(b)"
                 >
                   {{ opType === 'deleteLocal' && opTarget === b ? '⏳' : '✕' }}
@@ -62,18 +62,18 @@
             </div>
 
             <div class="form-card">
-              <h4>新建分支</h4>
+              <h4>{{ t('branches.new.title') }}</h4>
 
               <div class="form-row">
-                <label>名称</label>
+                <label>{{ t('branches.new.name') }}</label>
                 <input v-model="newBranchName" placeholder="feature/xxx" />
               </div>
 
               <div class="form-row">
-                <label>基于</label>
+                <label>{{ t('branches.new.base') }}</label>
                 <select v-model="newBranchBase">
                   <option value="">
-                    {{ currentBranch ? `当前分支 (${currentBranch})` : '当前分支' }}
+                    {{ currentBranch ? t('branches.new.baseCurrentNamed', { branch: currentBranch }) : t('branches.new.baseCurrent') }}
                   </option>
                   <option v-for="b in localBranches" :key="b" :value="b">
                     {{ b }}
@@ -87,14 +87,14 @@
                   :disabled="!canCreateBranch || isLoadingAny"
                   @click="createNewBranch"
                 >
-                  {{ opType === 'create' ? '⏳ 创建中...' : '创建' }}
+                  {{ opType === 'create' ? t('branches.new.creating') : t('branches.new.create') }}
                 </button>
                 <span class="tooltip-wrapper">
-                  <span class="tooltip-icon" title="Tooltip">
+                  <span class="tooltip-icon" :title="t('branches.new.hintIconTitle')">
                     ?
                   </span>
                   <span class="tooltip-text">
-                    新建的是「本地分支」。想在 GitHub 上看到，需要切到该分支后执行推送（Push）并刷新远程分支列表。
+                    {{ t('branches.new.hint') }}
                   </span>
                 </span>
               </div>
@@ -103,23 +103,23 @@
 
           <div class="list-card">
             <h3>
-              远程分支
-              <span class="h3-tooltip" data-tooltip="展示远程仓库分支（如 origin/main）。新建分支只会先创建本地，需要 Push 才会出现在远程。">?</span>
+              {{ t('branches.remote.title') }}
+              <span class="h3-tooltip" :data-tooltip="t('branches.remote.tip')">?</span>
             </h3>
 
             <div class="list">
               <div v-if="remoteError" class="empty remote-error">
-                远程分支读取失败：{{ remoteError }}
+                {{ t('branches.remote.readFailed', { msg: remoteError }) }}
               </div>
-              <div v-if="!hasRemote" class="empty">未关联远程仓库</div>
-              <div v-else-if="!remoteBranches.length" class="empty">暂无远程分支</div>
+              <div v-if="!hasRemote" class="empty">{{ t('branches.remote.noRemote') }}</div>
+              <div v-else-if="!remoteBranches.length" class="empty">{{ t('branches.remote.empty') }}</div>
 
               <div v-for="b in remoteBranches" :key="b" class="branch-item remote-item">
                 <span class="branch-name-text">{{ b }}</span>
                 <button
                   class="btn-icon danger"
                   @click.stop="promptDeleteRemote(b)"
-                  title="删除远程分支"
+                  :title="t('branches.deleteRemoteTitle')"
                   :disabled="isLoadingAny"
                 >
                   {{ opType === 'deleteRemote' && opTarget === b ? '⏳' : '✕' }}
@@ -132,19 +132,19 @@
         <div class="op-panel">
           <div class="op-card">
             <h3>
-              合并分支
-              <span class="h3-tooltip" data-tooltip="将来源分支合并到目标分支：git switch 目标 + git merge 来源。">?</span>
+              {{ t('branches.merge.title') }}
+              <span class="h3-tooltip" :data-tooltip="t('branches.merge.tip')">?</span>
             </h3>
 
             <div class="form-row">
-              <label>目标分支</label>
+              <label>{{ t('branches.merge.target') }}</label>
               <select v-model="mergeTarget" :disabled="localBranches.length === 0 || opBusy">
                 <option v-for="b in localBranches" :key="b" :value="b">{{ b }}</option>
               </select>
             </div>
 
             <div class="form-row">
-              <label>来源分支</label>
+              <label>{{ t('branches.merge.source') }}</label>
               <select v-model="mergeSource" :disabled="localBranches.length === 0 || opBusy">
                 <option v-for="b in localBranches" :key="b" :value="b">{{ b }}</option>
               </select>
@@ -156,30 +156,30 @@
                 :disabled="!canMerge || isLoadingAny"
                 @click="doMerge"
               >
-                {{ opType === 'merge' ? '⏳ 合并中...' : '合并' }}
+                {{ opType === 'merge' ? t('branches.merge.merging') : t('branches.merge.btn') }}
               </button>
             </div>
 
             <p v-if="opResult?.merge" class="op-result" :class="{ success: opResult.merge.success, error: !opResult.merge.success }">
-              {{ opResult.merge.success ? '✓ 合并完成' : '✕ 合并失败: ' + (opResult.merge.error || '') }}
+              {{ opResult.merge.success ? t('branches.merge.ok') : t('branches.merge.fail', { msg: opResult.merge.error || '' }) }}
             </p>
           </div>
 
           <div class="op-card">
             <h3>
-              变基
-              <span class="h3-tooltip" data-tooltip="将选定分支 rebase 到另一个分支上：git switch 分支 + git rebase onto。">?</span>
+              {{ t('branches.rebase.title') }}
+              <span class="h3-tooltip" :data-tooltip="t('branches.rebase.tip')">?</span>
             </h3>
 
             <div class="form-row">
-              <label>要变基</label>
+              <label>{{ t('branches.rebase.branch') }}</label>
               <select v-model="rebaseBranch" :disabled="localBranches.length === 0 || opBusy">
                 <option v-for="b in localBranches" :key="b" :value="b">{{ b }}</option>
               </select>
             </div>
 
             <div class="form-row">
-              <label>onto</label>
+              <label>{{ t('branches.rebase.onto') }}</label>
               <select v-model="rebaseOnto" :disabled="localBranches.length === 0 || opBusy">
                 <option v-for="b in localBranches" :key="b" :value="b">{{ b }}</option>
               </select>
@@ -191,30 +191,30 @@
                 :disabled="!canRebase || isLoadingAny"
                 @click="doRebase"
               >
-                {{ opType === 'rebase' ? '⏳ 变基中...' : '变基' }}
+                {{ opType === 'rebase' ? t('branches.rebase.rebasing') : t('branches.rebase.btn') }}
               </button>
             </div>
 
             <p v-if="opResult?.rebase" class="op-result" :class="{ success: opResult.rebase.success, error: !opResult.rebase.success }">
-              {{ opResult.rebase.success ? '✓ 变基完成' : '✕ 变基失败: ' + (opResult.rebase.error || '') }}
+              {{ opResult.rebase.success ? t('branches.rebase.ok') : t('branches.rebase.fail', { msg: opResult.rebase.error || '' }) }}
             </p>
           </div>
 
           <div class="diff-card">
             <h3>
-              对比分支差异
-              <span class="h3-tooltip" data-tooltip="比较两个分支的差异内容：git diff base...compare。">?</span>
+              {{ t('branches.diff.title') }}
+              <span class="h3-tooltip" :data-tooltip="t('branches.diff.tip')">?</span>
             </h3>
 
             <div class="form-row">
-              <label>对比基准</label>
+              <label>{{ t('branches.diff.base') }}</label>
               <select v-model="diffFrom" :disabled="localBranches.length === 0 || isDiffLoading">
                 <option v-for="b in localBranches" :key="b" :value="b">{{ b }}</option>
               </select>
             </div>
 
             <div class="form-row">
-              <label>对比分支</label>
+              <label>{{ t('branches.diff.compare') }}</label>
               <select v-model="diffTo" :disabled="localBranches.length === 0 || isDiffLoading">
                 <option v-for="b in localBranches" :key="b" :value="b">{{ b }}</option>
               </select>
@@ -226,12 +226,12 @@
                 :disabled="!canDiff || isLoadingAny"
                 @click="doDiff"
               >
-                {{ isDiffLoading ? '⏳ 对比中...' : '对比差异' }}
+                {{ isDiffLoading ? t('branches.diff.comparing') : t('branches.diff.btn') }}
               </button>
             </div>
 
-            <div v-if="isDiffLoading" class="diff-loading">加载 diff 中…</div>
-            <pre v-else class="diff-output">{{ diffOutput }}</pre>
+            <div v-if="isDiffLoading" class="diff-loading">{{ t('branches.diff.loading') }}</div>
+            <pre v-else class="diff-output">{{ diffOutput || t('branches.diff.placeholder') }}</pre>
           </div>
         </div>
       </div>
@@ -241,6 +241,9 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   title: { type: String, default: '分支管理' },
@@ -263,7 +266,7 @@ const rebaseOnto = ref('')
 
 const diffFrom = ref('')
 const diffTo = ref('')
-const diffOutput = ref('点击「对比差异」显示内容。')
+const diffOutput = ref('')
 const isDiffLoading = ref(false)
 
 const opBusy = ref(false)
@@ -274,6 +277,12 @@ const opResult = ref({ merge: null, rebase: null })
 const remoteError = ref('')
 
 const isLoadingAny = computed(() => opBusy.value || isDiffLoading.value)
+
+function switchBranchTooltip(b) {
+  return b === currentBranch.value
+    ? t('branches.tooltipOnBranch')
+    : t('branches.tooltipSwitchTo', { branch: b })
+}
 
 function startOp(type, target = '') {
   opBusy.value = true
@@ -349,7 +358,7 @@ async function loadAll() {
         remoteBranches.value = remotes || []
       } catch (remoteErr) {
         remoteBranches.value = []
-        remoteError.value = String(remoteErr?.message || remoteErr || '远程分支读取失败')
+        remoteError.value = String(remoteErr?.message || remoteErr || t('branches.remote.fetchFailed'))
       }
     } else {
       remoteBranches.value = []
@@ -398,7 +407,7 @@ async function onSwitch(branchName) {
   try {
     const res = await window.electronAPI.switchBranch(props.currentRepo.path, branchName)
     if (!res?.success) {
-      alert('切换失败: ' + (res?.error || ''))
+      alert(t('branches.alerts.switchFailed', { msg: res?.error || '' }))
       return
     }
   } finally {
@@ -420,7 +429,7 @@ async function createNewBranch() {
     const name = newBranchName.value.trim()
     const res = await window.electronAPI.createBranch(props.currentRepo.path, name, baseBranch)
     if (!res?.success) {
-      alert('创建失败: ' + (res?.error || ''))
+      alert(t('branches.alerts.createFailed', { msg: res?.error || '' }))
       return
     }
     newBranchName.value = ''
@@ -435,11 +444,11 @@ async function promptDeleteLocal(branchName) {
   if (!props.currentRepo || !window.electronAPI) return
   if (!branchName) return
   if (branchName === currentBranch.value) {
-    alert('无法删除当前正在使用的分支。请先切换到其它分支。')
+    alert(t('branches.alerts.cannotDeleteCurrent'))
     return
   }
 
-  if (!confirm(`确定删除本地分支「${branchName}」吗？`)) return
+  if (!confirm(t('branches.alerts.deleteLocalConfirm', { name: branchName }))) return
 
   startOp('deleteLocal', branchName)
   opResult.value.merge = null
@@ -461,17 +470,17 @@ async function promptDeleteLocal(branchName) {
       lower.includes('will not be deleted') ||
       lower.includes('cannot delete branch')
 
-    if (suggestsForce && confirm('删除失败，可能未完成合并。是否强制删除？')) {
+    if (suggestsForce && confirm(t('branches.alerts.forceDeleteConfirm'))) {
       res = await window.electronAPI.deleteBranch(props.currentRepo.path, branchName, true)
       if (!res?.success) {
-        alert('强制删除失败: ' + (res?.error || ''))
+        alert(t('branches.alerts.forceDeleteFailed', { msg: res?.error || '' }))
         return
       }
       await loadAll()
       return
     }
 
-    alert('删除失败: ' + msg)
+    alert(t('branches.alerts.deleteFailed', { msg }))
   } finally {
     endOp()
   }
@@ -489,14 +498,14 @@ async function promptDeleteRemote(remoteBranch) {
   if (!remoteBranch) return
   if (!props.hasRemote) return
 
-  if (!confirm(`确定删除远程分支「${remoteBranch}」吗？`)) return
+  if (!confirm(t('branches.alerts.deleteRemoteConfirm', { name: remoteBranch }))) return
 
   startOp('deleteRemote', remoteBranch)
   try {
     const { remoteName, branchName } = parseRemoteBranch(remoteBranch)
     const res = await window.electronAPI.deleteRemoteBranch(props.currentRepo.path, remoteName, branchName)
     if (!res?.success) {
-      alert('删除远程分支失败: ' + (res?.error || ''))
+      alert(t('branches.alerts.deleteRemoteFailed', { msg: res?.error || '' }))
       return
     }
     await loadAll()
@@ -513,7 +522,7 @@ async function doMerge() {
   opResult.value.merge = null
 
   try {
-    const ok = confirm(`将「${mergeSource.value}」合并到「${mergeTarget.value}」？`)
+    const ok = confirm(t('branches.alerts.mergeConfirm', { source: mergeSource.value, target: mergeTarget.value }))
     if (!ok) return
 
     const res = await window.electronAPI.mergeBranches(props.currentRepo.path, mergeTarget.value, mergeSource.value)
@@ -532,7 +541,7 @@ async function doRebase() {
   opResult.value.rebase = null
 
   try {
-    const ok = confirm(`将「${rebaseBranch.value}」变基到「${rebaseOnto.value}」？`)
+    const ok = confirm(t('branches.alerts.rebaseConfirm', { branch: rebaseBranch.value, onto: rebaseOnto.value }))
     if (!ok) return
 
     const res = await window.electronAPI.rebaseBranches(props.currentRepo.path, rebaseBranch.value, rebaseOnto.value)
@@ -553,9 +562,9 @@ async function doDiff() {
 
   try {
     const out = await window.electronAPI.diffBranches(props.currentRepo.path, diffFrom.value, diffTo.value)
-    diffOutput.value = out && out.trim().length > 0 ? out : '无差异（或无法生成差异输出）。'
+    diffOutput.value = out && out.trim().length > 0 ? out : t('branches.diff.noDiff')
   } catch (e) {
-    diffOutput.value = '对比失败: ' + (e?.message || String(e || ''))
+    diffOutput.value = t('branches.diff.fail', { msg: e?.message || String(e || '') })
   } finally {
     isDiffLoading.value = false
     endOp()

@@ -1,0 +1,247 @@
+{
+  "app": {
+    "title": "Git Client"
+  },
+  "tabs": {
+    "repo": "Repository",
+    "changes": "Changes",
+    "branches": "Branches",
+    "log": "History",
+    "sync": "Sync"
+  },
+  "repo": {
+    "linkedRemote": "Remote linked",
+    "noRemote": "No remote",
+    "noSelection": "No repository",
+    "openFirst": "Open a repository first"
+  },
+  "panel": {
+    "changesTitle": "File changes",
+    "changesReady": "No changes",
+    "branchesTitle": "Branches",
+    "logTitle": "Commit history",
+    "logReady": "No commits yet",
+    "syncTitle": "Remote sync"
+  },
+  "alerts": {
+    "runInElectron": "Run inside Electron",
+    "notGitRepo": "The selected folder is not a Git repository",
+    "repoCreated": "Repository created.",
+    "createFailed": "Failed to create: {msg}",
+    "folderNotGitAnymore": "This folder is no longer a Git repository"
+  },
+  "language": {
+    "label": "Language",
+    "zhCN": "简体中文",
+    "enUS": "English"
+  },
+  "repoPanel": {
+    "title": "Project / repository",
+    "openLocal": "Open local repository",
+    "createNew": "New repository",
+    "currentRepo": "Current repository",
+    "pathLabel": "Path:",
+    "statusLabel": "Status:",
+    "recentTitle": "Recent repositories",
+    "emptyRecent": "No recent repositories"
+  },
+  "changes": {
+    "toolbar": {
+      "refreshTitle": "Refresh",
+      "refresh": "🔄 Refresh",
+      "refreshing": "⏳ Refreshing…",
+      "selectAllTitle": "Select all",
+      "selectAllOn": "☑ Select all",
+      "selectAllOff": "☐ Select all"
+    },
+    "errors": {
+      "statusReadFailed": "Failed to read Git status: {msg}"
+    },
+    "noRepo": "Open a Git repository in the Repository tab first.",
+    "section": {
+      "staged": "Staged",
+      "modified": "Modified",
+      "untracked": "Untracked",
+      "deleted": "Deleted"
+    },
+    "commit": {
+      "title": "Commit",
+      "messageLabel": "Commit message",
+      "placeholder": "Enter commit message…",
+      "amend": "Amend previous commit",
+      "lastPrefix": "Last:",
+      "noStaged": "Nothing staged yet. Stage files above first.",
+      "submit": "✓ Commit",
+      "submitting": "Committing…",
+      "submitTitle": "Commit to local repository",
+      "push": "↑ Commit & push",
+      "pushing": "Pushing…",
+      "pushTitle": "Commit and push to remote",
+      "success": "Committed.",
+      "failed": "Commit failed: {msg}"
+    },
+    "empty": {
+      "clean": "✓ Working tree clean"
+    },
+    "diff": {
+      "stagedSuffix": " (staged)",
+      "unstagedSuffix": " (not staged)",
+      "clearTitle": "Clear preview",
+      "localFile": "Local file",
+      "gitHead": "Git (HEAD)",
+      "loading": "Loading diff…",
+      "placeholderTitle": "Diff preview",
+      "placeholderHint": "Click a file on the left to load a comparison.",
+      "prevHunk": "Previous change",
+      "nextHunk": "Next change",
+      "localUnreadable": "(Could not read local file)",
+      "gitUnreadable": "(Could not read Git version)"
+    },
+    "ignoreTitle": "Add to .gitignore",
+    "ctx": {
+      "count": "({n} items)",
+      "processing": "Working…",
+      "stage": "+ Stage",
+      "unstage": "- Unstage",
+      "discard": "↩ Discard changes",
+      "ignore": "⊘ Ignore (add to .gitignore)"
+    },
+    "alerts": {
+      "stageFailed": "Stage failed: {msg}",
+      "unstageFailed": "Unstage failed: {msg}",
+      "discardConfirm": "Discard changes to these files? This cannot be undone.",
+      "discardFailed": "Discard failed: {msg}",
+      "pickStagedFirst": "Select files in the Staged section first."
+    },
+    "commitError": {
+      "pushRejected": "Push rejected: the remote has new commits. Pull and resolve conflicts before pushing.",
+      "unknown": "Unknown error"
+    },
+    "stub": {
+      "pull": "Pull",
+      "push": "Push"
+    }
+  },
+  "branches": {
+    "toolbar": {
+      "refreshTitle": "Refresh",
+      "refresh": "🔄 Refresh",
+      "refreshing": "🔄 Refreshing…"
+    },
+    "local": {
+      "title": "Local branches",
+      "tip": "All local branches. Click to switch."
+    },
+    "remote": {
+      "title": "Remote branches",
+      "tip": "Remote-tracking branches (e.g. origin/main). New branches stay local until you push.",
+      "readFailed": "Failed to load remote branches: {msg}",
+      "fetchFailed": "Failed to load remote branches",
+      "noRemote": "No remote configured",
+      "empty": "No remote branches"
+    },
+    "emptyLocal": "No local branches",
+    "tooltipOnBranch": "Current branch",
+    "tooltipSwitchTo": "Switch to local branch “{branch}”",
+    "deleteLocalTitle": "Delete local branch",
+    "deleteRemoteTitle": "Delete remote branch",
+    "new": {
+      "title": "New branch",
+      "name": "Name",
+      "base": "Based on",
+      "baseCurrent": "Current branch",
+      "baseCurrentNamed": "Current branch ({branch})",
+      "create": "Create",
+      "creating": "⏳ Creating…",
+      "hint": "This creates a local branch only. To see it on GitHub, switch to it, push, then refresh remotes.",
+      "hintIconTitle": "Help"
+    },
+    "merge": {
+      "title": "Merge branches",
+      "tip": "Merge source into target: git switch target, then git merge source.",
+      "target": "Target",
+      "source": "Source",
+      "btn": "Merge",
+      "merging": "⏳ Merging…",
+      "ok": "✓ Merge completed",
+      "fail": "✕ Merge failed: {msg}"
+    },
+    "rebase": {
+      "title": "Rebase",
+      "tip": "Rebase one branch onto another: git switch branch, then git rebase onto.",
+      "branch": "Branch to rebase",
+      "onto": "onto",
+      "btn": "Rebase",
+      "rebasing": "⏳ Rebasing…",
+      "ok": "✓ Rebase completed",
+      "fail": "✕ Rebase failed: {msg}"
+    },
+    "diff": {
+      "title": "Compare branches",
+      "tip": "Diff two branches: git diff base...compare.",
+      "base": "Base",
+      "compare": "Compare",
+      "btn": "Show diff",
+      "comparing": "⏳ Comparing…",
+      "loading": "Loading diff…",
+      "placeholder": "Click “Show diff” to load output.",
+      "noDiff": "No diff (or empty output).",
+      "fail": "Diff failed: {msg}"
+    },
+    "alerts": {
+      "switchFailed": "Switch failed: {msg}",
+      "createFailed": "Create failed: {msg}",
+      "cannotDeleteCurrent": "Cannot delete the branch you are on. Switch to another branch first.",
+      "deleteLocalConfirm": "Delete local branch “{name}”?",
+      "forceDeleteConfirm": "Delete failed; branch may not be fully merged. Force delete?",
+      "forceDeleteFailed": "Force delete failed: {msg}",
+      "deleteFailed": "Delete failed: {msg}",
+      "deleteRemoteConfirm": "Delete remote branch “{name}”?",
+      "deleteRemoteFailed": "Failed to delete remote branch: {msg}",
+      "mergeConfirm": "Merge “{source}” into “{target}”?",
+      "rebaseConfirm": "Rebase “{branch}” onto “{onto}”?"
+    }
+  },
+  "sync": {
+    "remoteTitle": "Remote",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing…",
+    "remoteBranchLabel": "Remote:",
+    "trackingLabel": "Tracking:",
+    "urlLabel": "URL:",
+    "aheadLabel": "↑ Ahead",
+    "behindLabel": "↓ Behind",
+    "unpushedTitle": "Unpushed files ({n})",
+    "noRemoteLinked": "No remote configured",
+    "addRemoteBtn": "+ Add remote",
+    "processing": "Working…",
+    "addRemoteFormTitle": "Add remote",
+    "name": "Name",
+    "url": "URL",
+    "add": "Add",
+    "adding": "Adding…",
+    "cancel": "Cancel",
+    "actionsTitle": "Sync",
+    "fetch": "📥 Fetch",
+    "fetching": "Fetching…",
+    "fetchHint": "Fetch updates without merging",
+    "pull": "⬇️ Pull",
+    "pulling": "Pulling…",
+    "pullHint": "Pull and merge remote changes",
+    "push": "⬆️ Push",
+    "pushing": "Pushing…",
+    "pushHint": "Push to remote",
+    "success": "✓ Done",
+    "errorTitle": "✕ Failed",
+    "conflictTitle": "Merge conflict. Next steps:",
+    "conflictStep1": "Open the Changes tab and inspect conflicted files",
+    "conflictStep2": "Resolve conflicts manually",
+    "conflictStep3": "Stage and commit again",
+    "outputFetchOk": "Fetched remote updates",
+    "outputPullOk": "Pulled and merged remote changes",
+    "outputPushOk": "Pushed to remote",
+    "alerts": {
+      "addRemoteFailed": "Failed to add remote: {msg}"
+    }
+  }
+}

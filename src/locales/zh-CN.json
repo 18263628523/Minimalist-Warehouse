@@ -1,0 +1,247 @@
+{
+  "app": {
+    "title": "Git Client"
+  },
+  "tabs": {
+    "repo": "仓库",
+    "changes": "变更",
+    "branches": "分支",
+    "log": "日志",
+    "sync": "同步"
+  },
+  "repo": {
+    "linkedRemote": "已关联远程",
+    "noRemote": "未关联远程",
+    "noSelection": "未选择仓库",
+    "openFirst": "请先打开仓库"
+  },
+  "panel": {
+    "changesTitle": "文件变更",
+    "changesReady": "暂无可用变更",
+    "branchesTitle": "分支管理",
+    "logTitle": "提交历史",
+    "logReady": "暂无提交记录",
+    "syncTitle": "远程同步"
+  },
+  "alerts": {
+    "runInElectron": "请在 Electron 环境中运行",
+    "notGitRepo": "选择的文件夹不是 Git 仓库",
+    "repoCreated": "仓库创建成功！",
+    "createFailed": "创建失败: {msg}",
+    "folderNotGitAnymore": "该文件夹不再是 Git 仓库"
+  },
+  "language": {
+    "label": "语言",
+    "zhCN": "简体中文",
+    "enUS": "English"
+  },
+  "repoPanel": {
+    "title": "项目 / 仓库管理",
+    "openLocal": "打开本地仓库",
+    "createNew": "新建仓库",
+    "currentRepo": "当前仓库",
+    "pathLabel": "路径：",
+    "statusLabel": "状态：",
+    "recentTitle": "最近打开的仓库",
+    "emptyRecent": "暂无最近打开的仓库"
+  },
+  "changes": {
+    "toolbar": {
+      "refreshTitle": "刷新",
+      "refresh": "🔄 刷新",
+      "refreshing": "⏳ 刷新中...",
+      "selectAllTitle": "全选",
+      "selectAllOn": "☑ 全选",
+      "selectAllOff": "☐ 全选"
+    },
+    "errors": {
+      "statusReadFailed": "读取 Git 状态失败：{msg}"
+    },
+    "noRepo": "请先在「仓库管理」中打开一个 Git 仓库",
+    "section": {
+      "staged": "已暂存",
+      "modified": "已修改",
+      "untracked": "未跟踪",
+      "deleted": "已删除"
+    },
+    "commit": {
+      "title": "提交",
+      "messageLabel": "提交信息",
+      "placeholder": "输入提交信息...",
+      "amend": "追加到上一次提交 (amend)",
+      "lastPrefix": "上次:",
+      "noStaged": "暂无待提交文件，请先在上方暂存",
+      "submit": "✓ 提交",
+      "submitting": "提交中...",
+      "submitTitle": "提交到本地仓库",
+      "push": "↑ 提交并推送",
+      "pushing": "推送中...",
+      "pushTitle": "提交并推送到远程",
+      "success": "提交成功!",
+      "failed": "提交失败: {msg}"
+    },
+    "empty": {
+      "clean": "✓ 工作区干净，没有变更"
+    },
+    "diff": {
+      "stagedSuffix": " (已暂存)",
+      "unstagedSuffix": " (未暂存)",
+      "clearTitle": "清空预览",
+      "localFile": "本地文件",
+      "gitHead": "Git 当前（HEAD）",
+      "loading": "加载差异中…",
+      "placeholderTitle": "差异预览",
+      "placeholderHint": "点击左侧文件行，在此处加载对比。",
+      "prevHunk": "上一个差异",
+      "nextHunk": "下一个差异",
+      "localUnreadable": "(无法读取本地文件)",
+      "gitUnreadable": "(无法读取 Git 当前版本)"
+    },
+    "ignoreTitle": "添加到 .gitignore",
+    "ctx": {
+      "count": "({n} 个)",
+      "processing": "处理中...",
+      "stage": "+ 暂存",
+      "unstage": "- 取消暂存",
+      "discard": "↩ 撤销更改",
+      "ignore": "⊘ 忽略（加入 .gitignore）"
+    },
+    "alerts": {
+      "stageFailed": "暂存失败: {msg}",
+      "unstageFailed": "取消暂存失败: {msg}",
+      "discardConfirm": "确定要撤销这些文件的更改吗？此操作不可恢复！",
+      "discardFailed": "撤销失败: {msg}",
+      "pickStagedFirst": "请先勾选「已暂存」区域的文件"
+    },
+    "commitError": {
+      "pushRejected": "推送被拒绝：远程分支有新提交，请先拉取最新版本并解决可能的冲突后再推送。",
+      "unknown": "未知错误"
+    },
+    "stub": {
+      "pull": "拉取",
+      "push": "推送"
+    }
+  },
+  "branches": {
+    "toolbar": {
+      "refreshTitle": "刷新",
+      "refresh": "🔄 刷新",
+      "refreshing": "🔄 刷新中..."
+    },
+    "local": {
+      "title": "本地分支",
+      "tip": "展示所有本地分支；点击即可切换到该分支。"
+    },
+    "remote": {
+      "title": "远程分支",
+      "tip": "展示远程仓库分支（如 origin/main）。新建分支只会先创建本地，需要 Push 才会出现在远程。",
+      "readFailed": "远程分支读取失败：{msg}",
+      "fetchFailed": "远程分支读取失败",
+      "noRemote": "未关联远程仓库",
+      "empty": "暂无远程分支"
+    },
+    "emptyLocal": "暂无本地分支",
+    "tooltipOnBranch": "已在当前分支",
+    "tooltipSwitchTo": "切换到本地分支「{branch}」",
+    "deleteLocalTitle": "删除本地分支",
+    "deleteRemoteTitle": "删除远程分支",
+    "new": {
+      "title": "新建分支",
+      "name": "名称",
+      "base": "基于",
+      "baseCurrent": "当前分支",
+      "baseCurrentNamed": "当前分支 ({branch})",
+      "create": "创建",
+      "creating": "⏳ 创建中...",
+      "hint": "新建的是「本地分支」。想在 GitHub 上看到，需要切到该分支后执行推送（Push）并刷新远程分支列表。",
+      "hintIconTitle": "说明"
+    },
+    "merge": {
+      "title": "合并分支",
+      "tip": "将来源分支合并到目标分支：git switch 目标 + git merge 来源。",
+      "target": "目标分支",
+      "source": "来源分支",
+      "btn": "合并",
+      "merging": "⏳ 合并中...",
+      "ok": "✓ 合并完成",
+      "fail": "✕ 合并失败: {msg}"
+    },
+    "rebase": {
+      "title": "变基",
+      "tip": "将选定分支 rebase 到另一个分支上：git switch 分支 + git rebase onto。",
+      "branch": "要变基",
+      "onto": "onto",
+      "btn": "变基",
+      "rebasing": "⏳ 变基中...",
+      "ok": "✓ 变基完成",
+      "fail": "✕ 变基失败: {msg}"
+    },
+    "diff": {
+      "title": "对比分支差异",
+      "tip": "比较两个分支的差异内容：git diff base...compare。",
+      "base": "对比基准",
+      "compare": "对比分支",
+      "btn": "对比差异",
+      "comparing": "⏳ 对比中...",
+      "loading": "加载 diff 中…",
+      "placeholder": "点击「对比差异」显示内容。",
+      "noDiff": "无差异（或无法生成差异输出）。",
+      "fail": "对比失败: {msg}"
+    },
+    "alerts": {
+      "switchFailed": "切换失败: {msg}",
+      "createFailed": "创建失败: {msg}",
+      "cannotDeleteCurrent": "无法删除当前正在使用的分支。请先切换到其它分支。",
+      "deleteLocalConfirm": "确定删除本地分支「{name}」吗？",
+      "forceDeleteConfirm": "删除失败，可能未完成合并。是否强制删除？",
+      "forceDeleteFailed": "强制删除失败: {msg}",
+      "deleteFailed": "删除失败: {msg}",
+      "deleteRemoteConfirm": "确定删除远程分支「{name}」吗？",
+      "deleteRemoteFailed": "删除远程分支失败: {msg}",
+      "mergeConfirm": "将「{source}」合并到「{target}」？",
+      "rebaseConfirm": "将「{branch}」变基到「{onto}」？"
+    }
+  },
+  "sync": {
+    "remoteTitle": "远程仓库",
+    "refresh": "刷新",
+    "refreshing": "刷新中...",
+    "remoteBranchLabel": "远程:",
+    "trackingLabel": "跟踪:",
+    "urlLabel": "URL:",
+    "aheadLabel": "↑ 本地领先",
+    "behindLabel": "↓ 远程领先",
+    "unpushedTitle": "未推送文件 ({n})",
+    "noRemoteLinked": "未关联远程仓库",
+    "addRemoteBtn": "+ 添加远程",
+    "processing": "处理中...",
+    "addRemoteFormTitle": "添加远程仓库",
+    "name": "名称",
+    "url": "URL",
+    "add": "添加",
+    "adding": "添加中...",
+    "cancel": "取消",
+    "actionsTitle": "同步操作",
+    "fetch": "📥 获取 (fetch)",
+    "fetching": "获取中...",
+    "fetchHint": "获取远程更新，不合并",
+    "pull": "⬇️ 拉取 (pull)",
+    "pulling": "拉取中...",
+    "pullHint": "拉取并合并远程更改",
+    "push": "⬆️ 推送 (push)",
+    "pushing": "推送中...",
+    "pushHint": "推送到远程仓库",
+    "success": "✓ 操作成功!",
+    "errorTitle": "✕ 操作失败",
+    "conflictTitle": "检测到冲突! 请执行:",
+    "conflictStep1": "在「变更」中查看冲突文件",
+    "conflictStep2": "手动解决冲突",
+    "conflictStep3": "再次暂存并提交",
+    "outputFetchOk": "已获取远程更新",
+    "outputPullOk": "已拉取并合并远程更改",
+    "outputPushOk": "已推送到远程仓库",
+    "alerts": {
+      "addRemoteFailed": "添加失败: {msg}"
+    }
+  }
+}

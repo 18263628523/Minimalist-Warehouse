@@ -3,31 +3,31 @@
     <h2>{{ title }}</h2>
 
     <p v-if="!currentRepo" class="no-repo">
-      请先在「仓库管理」中打开一个 Git 仓库
+      {{ t('changes.noRepo') }}
     </p>
 
     <template v-else>
       <!-- Remote Info -->
       <div class="remote-info">
         <div class="remote-header">
-          <h3>远程仓库</h3>
+          <h3>{{ t('sync.remoteTitle') }}</h3>
           <button @click="refreshRemote" :disabled="isRefreshing" class="btn-small btn-refresh">
             <span :class="['refresh-icon', { spinning: isRefreshing }]">🔄</span>
-            <span>{{ isRefreshing ? '刷新中...' : '刷新' }}</span>
+            <span>{{ isRefreshing ? t('sync.refreshing') : t('sync.refresh') }}</span>
           </button>
         </div>
 
         <div v-if="hasRemote" class="remote-detail">
           <div class="detail-row">
-            <span class="label">远程:</span>
+            <span class="label">{{ t('sync.remoteBranchLabel') }}</span>
             <span class="value">{{ currentBranch }}</span>
           </div>
           <div class="detail-row">
-            <span class="label">跟踪:</span>
+            <span class="label">{{ t('sync.trackingLabel') }}</span>
             <span class="value">{{ trackingBranch }}</span>
           </div>
           <div class="detail-row">
-            <span class="label">URL:</span>
+            <span class="label">{{ t('sync.urlLabel') }}</span>
             <span class="value url">{{ remoteUrl }}</span>
           </div>
           
@@ -35,16 +35,16 @@
           <div class="sync-status">
             <div class="status-item ahead">
               <span class="count">{{ aheadBehind.ahead }}</span>
-              <span class="label">↑ 本地领先</span>
+              <span class="label">{{ t('sync.aheadLabel') }}</span>
             </div>
             <div class="status-item behind">
               <span class="count">{{ aheadBehind.behind }}</span>
-              <span class="label">↓ 远程领先</span>
+              <span class="label">{{ t('sync.behindLabel') }}</span>
             </div>
           </div>
 
           <div v-if="unpushedFiles.length > 0" class="unpushed-files">
-            <div class="unpushed-title">未推送文件 ({{ unpushedFiles.length }})</div>
+            <div class="unpushed-title">{{ t('sync.unpushedTitle', { n: unpushedFiles.length }) }}</div>
             <ul>
               <li v-for="file in unpushedFiles" :key="file">{{ file }}</li>
             </ul>
@@ -53,35 +53,35 @@
         </div>
 
         <div v-else class="no-remote">
-          <p>未关联远程仓库</p>
+          <p>{{ t('sync.noRemoteLinked') }}</p>
           <button @click="showAddRemote = true" class="btn-primary" :disabled="isAnyActionLoading">
-            {{ isAnyActionLoading ? '处理中...' : '+ 添加远程' }}
+            {{ isAnyActionLoading ? t('sync.processing') : t('sync.addRemoteBtn') }}
           </button>
         </div>
       </div>
 
       <!-- Add Remote Form -->
       <div v-if="showAddRemote" class="add-remote-form">
-        <h3>添加远程仓库</h3>
+        <h3>{{ t('sync.addRemoteFormTitle') }}</h3>
         <div class="form-group">
-          <label>名称</label>
+          <label>{{ t('sync.name') }}</label>
           <input v-model="newRemoteName" placeholder="origin" />
         </div>
         <div class="form-group">
-          <label>URL</label>
+          <label>{{ t('sync.url') }}</label>
           <input v-model="newRemoteUrl" placeholder="https://github.com/user/repo.git" />
         </div>
         <div class="form-actions">
           <button @click="doAddRemote" class="btn-primary" :disabled="isAddRemoteLoading">
-            {{ isAddRemoteLoading ? '添加中...' : '添加' }}
+            {{ isAddRemoteLoading ? t('sync.adding') : t('sync.add') }}
           </button>
-          <button @click="showAddRemote = false" :disabled="isAddRemoteLoading">取消</button>
+          <button @click="showAddRemote = false" :disabled="isAddRemoteLoading">{{ t('sync.cancel') }}</button>
         </div>
       </div>
 
       <!-- Sync Actions -->
       <div class="sync-actions">
-        <h3>同步操作</h3>
+        <h3>{{ t('sync.actionsTitle') }}</h3>
         
         <div class="action-buttons">
           <div class="action-group">
@@ -90,9 +90,9 @@
               :disabled="isAnyActionLoading"
               class="btn-fetch"
             >
-              {{ isActionLoading('fetch') ? '获取中...' : '📥 获取 (fetch)' }}
+              {{ isActionLoading('fetch') ? t('sync.fetching') : t('sync.fetch') }}
             </button>
-            <p class="hint">获取远程更新，不合并</p>
+            <p class="hint">{{ t('sync.fetchHint') }}</p>
           </div>
 
           <div class="action-group">
@@ -101,9 +101,9 @@
               :disabled="isAnyActionLoading || !hasRemote"
               class="btn-pull"
             >
-              {{ isActionLoading('pull') ? '拉取中...' : '⬇️ 拉取 (pull)' }}
+              {{ isActionLoading('pull') ? t('sync.pulling') : t('sync.pull') }}
             </button>
-            <p class="hint">拉取并合并远程更改</p>
+            <p class="hint">{{ t('sync.pullHint') }}</p>
           </div>
 
           <div class="action-group">
@@ -112,9 +112,9 @@
               :disabled="isAnyActionLoading || !hasRemote"
               class="btn-push"
             >
-              {{ isActionLoading('push') ? '推送中...' : '⬆️ 推送 (push)' }}
+              {{ isActionLoading('push') ? t('sync.pushing') : t('sync.push') }}
             </button>
-            <p class="hint">推送到远程仓库</p>
+            <p class="hint">{{ t('sync.pushHint') }}</p>
           </div>
         </div>
       </div>
@@ -128,20 +128,20 @@
 
       <div v-if="syncResult" class="sync-result" :class="{ success: syncResult.success, error: !syncResult.success }">
         <template v-if="syncResult.success">
-          <p>✓ 操作成功!</p>
+          <p>{{ t('sync.success') }}</p>
           <pre v-if="syncResult.output" class="output">{{ syncResult.output }}</pre>
         </template>
         <template v-else>
-          <p class="error-title">✕ 操作失败</p>
+          <p class="error-title">{{ t('sync.errorTitle') }}</p>
           <p class="error-message">{{ syncResult.error }}</p>
           <pre v-if="syncResult.output" class="output">{{ syncResult.output }}</pre>
           <!-- Parse common errors -->
           <div v-if="isConflictError" class="error-hint">
-            <p>检测到冲突!请:</p>
+            <p>{{ t('sync.conflictTitle') }}</p>
             <ol>
-              <li>查看冲突文件 (在「变更」标签)</li>
-              <li>手动解决冲突</li>
-              <li>再次暂存并提交</li>
+              <li>{{ t('sync.conflictStep1') }}</li>
+              <li>{{ t('sync.conflictStep2') }}</li>
+              <li>{{ t('sync.conflictStep3') }}</li>
             </ol>
           </div>
         </template>
@@ -151,7 +151,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   title: { type: String, required: true },
@@ -243,7 +246,7 @@ async function doFetch() {
   progressPercent.value = 100
   
   if (result.success) {
-    syncResult.value = { success: true, output: '已获取远程更新' }
+    syncResult.value = { success: true, output: t('sync.outputFetchOk') }
     await loadRemoteInfo()
     emit('synced')
   } else {
@@ -276,7 +279,7 @@ async function doPull() {
   progressPercent.value = 100
   
   if (result.success) {
-    syncResult.value = { success: true, output: result.output || '已拉取并合并远程更改' }
+    syncResult.value = { success: true, output: result.output || t('sync.outputPullOk') }
     await loadRemoteInfo()
     emit('synced')
   } else {
@@ -308,7 +311,7 @@ async function doPush() {
   progressPercent.value = 100
   
   if (result.success) {
-    syncResult.value = { success: true, output: result.output || '已推送到远程仓库' }
+    syncResult.value = { success: true, output: result.output || t('sync.outputPushOk') }
     await loadRemoteInfo()
   } else {
     syncResult.value = result
@@ -336,7 +339,7 @@ async function doAddRemote() {
     await loadRemoteInfo()
     emit('synced')
   } else {
-    alert('添加失败: ' + result.error)
+    alert(t('sync.alerts.addRemoteFailed', { msg: result.error }))
   }
   activeAction.value = ''
 }

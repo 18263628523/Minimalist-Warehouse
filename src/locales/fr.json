@@ -1,0 +1,245 @@
+{
+  "app": { "title": "Git Client" },
+  "tabs": {
+    "repo": "Dépôt",
+    "changes": "Modifications",
+    "branches": "Branches",
+    "log": "Historique",
+    "sync": "Synchronisation"
+  },
+  "repo": {
+    "linkedRemote": "Distant lié",
+    "noRemote": "Pas de distant",
+    "noSelection": "Aucun dépôt",
+    "openFirst": "Ouvrez d'abord un dépôt"
+  },
+  "panel": {
+    "changesTitle": "Modifications des fichiers",
+    "changesReady": "Aucune modification",
+    "branchesTitle": "Gestion des branches",
+    "logTitle": "Historique des commits",
+    "logReady": "Aucun commit pour l'instant",
+    "syncTitle": "Synchronisation distante"
+  },
+  "alerts": {
+    "runInElectron": "Exécutez l'application dans Electron",
+    "notGitRepo": "Le dossier sélectionné n'est pas un dépôt Git",
+    "repoCreated": "Dépôt créé.",
+    "createFailed": "Échec de la création : {msg}",
+    "folderNotGitAnymore": "Ce dossier n'est plus un dépôt Git"
+  },
+  "language": {
+    "label": "Langue",
+    "zhCN": "简体中文",
+    "enUS": "English"
+  },
+  "repoPanel": {
+    "title": "Projet / dépôt",
+    "openLocal": "Ouvrir un dépôt local",
+    "createNew": "Nouveau dépôt",
+    "currentRepo": "Dépôt actuel",
+    "pathLabel": "Chemin :",
+    "statusLabel": "État :",
+    "recentTitle": "Dépôts récents",
+    "emptyRecent": "Aucun dépôt récent"
+  },
+  "changes": {
+    "toolbar": {
+      "refreshTitle": "Actualiser",
+      "refresh": "🔄 Actualiser",
+      "refreshing": "⏳ Actualisation…",
+      "selectAllTitle": "Tout sélectionner",
+      "selectAllOn": "☑ Tout sélectionner",
+      "selectAllOff": "☐ Tout sélectionner"
+    },
+    "errors": {
+      "statusReadFailed": "Impossible de lire l'état Git : {msg}"
+    },
+    "noRepo": "Ouvrez d'abord un dépôt Git dans l'onglet Dépôt.",
+    "section": {
+      "staged": "Indexés",
+      "modified": "Modifiés",
+      "untracked": "Non suivis",
+      "deleted": "Supprimés"
+    },
+    "commit": {
+      "title": "Commit",
+      "messageLabel": "Message de commit",
+      "placeholder": "Saisir le message de commit…",
+      "amend": "Modifier le commit précédent (amend)",
+      "lastPrefix": "Dernier :",
+      "noStaged": "Rien à committer. Indexez d'abord les fichiers ci-dessus.",
+      "submit": "✓ Commit",
+      "submitting": "Commit en cours…",
+      "submitTitle": "Commit dans le dépôt local",
+      "push": "↑ Commit & push",
+      "pushing": "Envoi…",
+      "pushTitle": "Commit et push vers le distant",
+      "success": "Commit réussi.",
+      "failed": "Échec du commit : {msg}"
+    },
+    "empty": {
+      "clean": "✓ Arbre de travail propre"
+    },
+    "diff": {
+      "stagedSuffix": " (indexé)",
+      "unstagedSuffix": " (non indexé)",
+      "clearTitle": "Effacer l'aperçu",
+      "localFile": "Fichier local",
+      "gitHead": "Git (HEAD)",
+      "loading": "Chargement du diff…",
+      "placeholderTitle": "Aperçu du diff",
+      "placeholderHint": "Cliquez sur un fichier à gauche pour charger la comparaison.",
+      "prevHunk": "Modification précédente",
+      "nextHunk": "Modification suivante",
+      "localUnreadable": "(Impossible de lire le fichier local)",
+      "gitUnreadable": "(Impossible de lire la version Git)"
+    },
+    "ignoreTitle": "Ajouter à .gitignore",
+    "ctx": {
+      "count": "({n} éléments)",
+      "processing": "Traitement…",
+      "stage": "+ Indexer",
+      "unstage": "- Désindexer",
+      "discard": "↩ Annuler les modifications",
+      "ignore": "⊘ Ignorer (ajouter à .gitignore)"
+    },
+    "alerts": {
+      "stageFailed": "Échec de l'indexation : {msg}",
+      "unstageFailed": "Échec du désindexage : {msg}",
+      "discardConfirm": "Annuler les modifications de ces fichiers ? Action irréversible.",
+      "discardFailed": "Échec de l'annulation : {msg}",
+      "pickStagedFirst": "Sélectionnez d'abord des fichiers dans la zone Indexés."
+    },
+    "commitError": {
+      "pushRejected": "Push refusé : le distant a de nouveaux commits. Faites un pull et résolvez les conflits avant d'envoyer.",
+      "unknown": "Erreur inconnue"
+    },
+    "stub": {
+      "pull": "Pull",
+      "push": "Push"
+    }
+  },
+  "branches": {
+    "toolbar": {
+      "refreshTitle": "Actualiser",
+      "refresh": "🔄 Actualiser",
+      "refreshing": "🔄 Actualisation…"
+    },
+    "local": {
+      "title": "Branches locales",
+      "tip": "Toutes les branches locales. Cliquez pour basculer."
+    },
+    "remote": {
+      "title": "Branches distantes",
+      "tip": "Branches de suivi distant (ex. origin/main). Les nouvelles branches restent locales jusqu'au push.",
+      "readFailed": "Impossible de charger les branches distantes : {msg}",
+      "fetchFailed": "Impossible de charger les branches distantes",
+      "noRemote": "Aucun distant configuré",
+      "empty": "Aucune branche distante"
+    },
+    "emptyLocal": "Aucune branche locale",
+    "tooltipOnBranch": "Branche actuelle",
+    "tooltipSwitchTo": "Basculer vers la branche locale « {branch} »",
+    "deleteLocalTitle": "Supprimer la branche locale",
+    "deleteRemoteTitle": "Supprimer la branche distante",
+    "new": {
+      "title": "Nouvelle branche",
+      "name": "Nom",
+      "base": "Basée sur",
+      "baseCurrent": "Branche actuelle",
+      "baseCurrentNamed": "Branche actuelle ({branch})",
+      "create": "Créer",
+      "creating": "⏳ Création…",
+      "hint": "Crée une branche locale uniquement. Pour GitHub : basculez, poussez, actualisez les distants.",
+      "hintIconTitle": "Aide"
+    },
+    "merge": {
+      "title": "Fusionner les branches",
+      "tip": "Fusionner la source dans la cible : git switch cible, puis git merge source.",
+      "target": "Branche cible",
+      "source": "Branche source",
+      "btn": "Fusionner",
+      "merging": "⏳ Fusion…",
+      "ok": "✓ Fusion terminée",
+      "fail": "✕ Échec de la fusion : {msg}"
+    },
+    "rebase": {
+      "title": "Rebase",
+      "tip": "Rebaser une branche sur une autre : git switch branche, puis git rebase onto.",
+      "branch": "Branche à rebaser",
+      "onto": "onto",
+      "btn": "Rebase",
+      "rebasing": "⏳ Rebase…",
+      "ok": "✓ Rebase terminé",
+      "fail": "✕ Échec du rebase : {msg}"
+    },
+    "diff": {
+      "title": "Comparer les branches",
+      "tip": "Comparer deux branches : git diff base...compare.",
+      "base": "Base",
+      "compare": "Comparer",
+      "btn": "Afficher le diff",
+      "comparing": "⏳ Comparaison…",
+      "loading": "Chargement du diff…",
+      "placeholder": "Cliquez sur « Afficher le diff » pour charger la sortie.",
+      "noDiff": "Aucun diff (ou sortie vide).",
+      "fail": "Échec de la comparaison : {msg}"
+    },
+    "alerts": {
+      "switchFailed": "Échec du basculement : {msg}",
+      "createFailed": "Échec de la création : {msg}",
+      "cannotDeleteCurrent": "Impossible de supprimer la branche active. Basculez d'abord.",
+      "deleteLocalConfirm": "Supprimer la branche locale « {name} » ?",
+      "forceDeleteConfirm": "Échec de la suppression ; fusion peut-être incomplète. Forcer ?",
+      "forceDeleteFailed": "Échec de la suppression forcée : {msg}",
+      "deleteFailed": "Échec de la suppression : {msg}",
+      "deleteRemoteConfirm": "Supprimer la branche distante « {name} » ?",
+      "deleteRemoteFailed": "Échec de la suppression distante : {msg}",
+      "mergeConfirm": "Fusionner « {source} » dans « {target} » ?",
+      "rebaseConfirm": "Rebaser « {branch} » sur « {onto} » ?"
+    }
+  },
+  "sync": {
+    "remoteTitle": "Distant",
+    "refresh": "Actualiser",
+    "refreshing": "Actualisation…",
+    "remoteBranchLabel": "Distant :",
+    "trackingLabel": "Suivi :",
+    "urlLabel": "URL :",
+    "aheadLabel": "↑ En avance",
+    "behindLabel": "↓ En retard",
+    "unpushedTitle": "Fichiers non poussés ({n})",
+    "noRemoteLinked": "Aucun distant configuré",
+    "addRemoteBtn": "+ Ajouter un distant",
+    "processing": "Traitement…",
+    "addRemoteFormTitle": "Ajouter un distant",
+    "name": "Nom",
+    "url": "URL",
+    "add": "Ajouter",
+    "adding": "Ajout…",
+    "cancel": "Annuler",
+    "actionsTitle": "Synchronisation",
+    "fetch": "📥 Fetch",
+    "fetching": "Fetch…",
+    "fetchHint": "Récupère les mises à jour sans fusion",
+    "pull": "⬇️ Pull",
+    "pulling": "Pull…",
+    "pullHint": "Tire et fusionne les changements distants",
+    "push": "⬆️ Push",
+    "pushing": "Push…",
+    "pushHint": "Pousser vers le distant",
+    "success": "✓ Terminé",
+    "errorTitle": "✕ Échec",
+    "conflictTitle": "Conflit de fusion. Étapes suivantes :",
+    "conflictStep1": "Ouvrez l'onglet Modifications et inspectez les fichiers en conflit",
+    "conflictStep2": "Résolvez les conflits manuellement",
+    "conflictStep3": "Indexez et commitez à nouveau",
+    "outputFetchOk": "Mises à jour distantes récupérées",
+    "outputPullOk": "Changements distants tirés et fusionnés",
+    "outputPushOk": "Poussé vers le distant",
+    "alerts": {
+      "addRemoteFailed": "Impossible d'ajouter le distant : {msg}"
+    }
+  }
+}

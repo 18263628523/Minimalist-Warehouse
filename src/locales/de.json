@@ -1,0 +1,245 @@
+{
+  "app": { "title": "Git Client" },
+  "tabs": {
+    "repo": "Repository",
+    "changes": "Änderungen",
+    "branches": "Branches",
+    "log": "Verlauf",
+    "sync": "Synchronisation"
+  },
+  "repo": {
+    "linkedRemote": "Remote verknüpft",
+    "noRemote": "Kein Remote",
+    "noSelection": "Kein Repository",
+    "openFirst": "Bitte zuerst ein Repository öffnen"
+  },
+  "panel": {
+    "changesTitle": "Dateiänderungen",
+    "changesReady": "Keine Änderungen",
+    "branchesTitle": "Branch-Verwaltung",
+    "logTitle": "Commit-Verlauf",
+    "logReady": "Noch keine Commits",
+    "syncTitle": "Remote-Synchronisierung"
+  },
+  "alerts": {
+    "runInElectron": "Bitte in Electron ausführen",
+    "notGitRepo": "Der ausgewählte Ordner ist kein Git-Repository",
+    "repoCreated": "Repository erstellt.",
+    "createFailed": "Erstellung fehlgeschlagen: {msg}",
+    "folderNotGitAnymore": "Dieser Ordner ist kein Git-Repository mehr"
+  },
+  "language": {
+    "label": "Sprache",
+    "zhCN": "简体中文",
+    "enUS": "English"
+  },
+  "repoPanel": {
+    "title": "Projekt / Repository",
+    "openLocal": "Lokales Repository öffnen",
+    "createNew": "Neues Repository",
+    "currentRepo": "Aktuelles Repository",
+    "pathLabel": "Pfad:",
+    "statusLabel": "Status:",
+    "recentTitle": "Zuletzt geöffnet",
+    "emptyRecent": "Keine zuletzt geöffneten Repositories"
+  },
+  "changes": {
+    "toolbar": {
+      "refreshTitle": "Aktualisieren",
+      "refresh": "🔄 Aktualisieren",
+      "refreshing": "⏳ Wird aktualisiert…",
+      "selectAllTitle": "Alle auswählen",
+      "selectAllOn": "☑ Alle auswählen",
+      "selectAllOff": "☐ Alle auswählen"
+    },
+    "errors": {
+      "statusReadFailed": "Git-Status konnte nicht gelesen werden: {msg}"
+    },
+    "noRepo": "Öffnen Sie zuerst ein Git-Repository im Tab „Repository“.",
+    "section": {
+      "staged": "Gestaged",
+      "modified": "Geändert",
+      "untracked": "Unversioniert",
+      "deleted": "Gelöscht"
+    },
+    "commit": {
+      "title": "Commit",
+      "messageLabel": "Commit-Nachricht",
+      "placeholder": "Commit-Nachricht eingeben…",
+      "amend": "Vorherigen Commit ergänzen (amend)",
+      "lastPrefix": "Letzter:",
+      "noStaged": "Nichts zum Committen. Bitte zuerst Dateien stagen.",
+      "submit": "✓ Commit",
+      "submitting": "Commit läuft…",
+      "submitTitle": "Commit ins lokale Repository",
+      "push": "↑ Commit & Push",
+      "pushing": "Push läuft…",
+      "pushTitle": "Commit und Push zum Remote",
+      "success": "Commit erfolgreich.",
+      "failed": "Commit fehlgeschlagen: {msg}"
+    },
+    "empty": {
+      "clean": "✓ Arbeitsverzeichnis sauber"
+    },
+    "diff": {
+      "stagedSuffix": " (gestaged)",
+      "unstagedSuffix": " (nicht gestaged)",
+      "clearTitle": "Vorschau leeren",
+      "localFile": "Lokale Datei",
+      "gitHead": "Git (HEAD)",
+      "loading": "Diff wird geladen…",
+      "placeholderTitle": "Diff-Vorschau",
+      "placeholderHint": "Klicken Sie links auf eine Datei, um den Vergleich zu laden.",
+      "prevHunk": "Vorherige Änderung",
+      "nextHunk": "Nächste Änderung",
+      "localUnreadable": "(Lokale Datei konnte nicht gelesen werden)",
+      "gitUnreadable": "(Git-Version konnte nicht gelesen werden)"
+    },
+    "ignoreTitle": "Zu .gitignore hinzufügen",
+    "ctx": {
+      "count": "({n} Elemente)",
+      "processing": "Wird verarbeitet…",
+      "stage": "+ Stagen",
+      "unstage": "- Unstagen",
+      "discard": "↩ Änderungen verwerfen",
+      "ignore": "⊘ Ignorieren (.gitignore)"
+    },
+    "alerts": {
+      "stageFailed": "Stagen fehlgeschlagen: {msg}",
+      "unstageFailed": "Unstagen fehlgeschlagen: {msg}",
+      "discardConfirm": "Änderungen an diesen Dateien verwerfen? Dies kann nicht rückgängig gemacht werden.",
+      "discardFailed": "Verwerfen fehlgeschlagen: {msg}",
+      "pickStagedFirst": "Wählen Sie zuerst Dateien im Bereich „Gestaged“."
+    },
+    "commitError": {
+      "pushRejected": "Push abgelehnt: Remote hat neue Commits. Bitte zuerst pullen und Konflikte lösen.",
+      "unknown": "Unbekannter Fehler"
+    },
+    "stub": {
+      "pull": "Pull",
+      "push": "Push"
+    }
+  },
+  "branches": {
+    "toolbar": {
+      "refreshTitle": "Aktualisieren",
+      "refresh": "🔄 Aktualisieren",
+      "refreshing": "🔄 Wird aktualisiert…"
+    },
+    "local": {
+      "title": "Lokale Branches",
+      "tip": "Alle lokalen Branches. Klicken zum Wechseln."
+    },
+    "remote": {
+      "title": "Remote-Branches",
+      "tip": "Remote-Tracking-Branches (z. B. origin/main). Neue Branches sind lokal, bis Sie pushen.",
+      "readFailed": "Remote-Branches konnten nicht geladen werden: {msg}",
+      "fetchFailed": "Remote-Branches konnten nicht geladen werden",
+      "noRemote": "Kein Remote konfiguriert",
+      "empty": "Keine Remote-Branches"
+    },
+    "emptyLocal": "Keine lokalen Branches",
+    "tooltipOnBranch": "Aktueller Branch",
+    "tooltipSwitchTo": "Zu lokalem Branch „{branch}“ wechseln",
+    "deleteLocalTitle": "Lokalen Branch löschen",
+    "deleteRemoteTitle": "Remote-Branch löschen",
+    "new": {
+      "title": "Neuer Branch",
+      "name": "Name",
+      "base": "Basierend auf",
+      "baseCurrent": "Aktueller Branch",
+      "baseCurrentNamed": "Aktueller Branch ({branch})",
+      "create": "Erstellen",
+      "creating": "⏳ Wird erstellt…",
+      "hint": "Erstellt nur einen lokalen Branch. Für GitHub: wechseln, pushen, Remotes aktualisieren.",
+      "hintIconTitle": "Hilfe"
+    },
+    "merge": {
+      "title": "Branches zusammenführen",
+      "tip": "Quelle in Ziel mergen: git switch Ziel, dann git merge Quelle.",
+      "target": "Ziel-Branch",
+      "source": "Quell-Branch",
+      "btn": "Merge",
+      "merging": "⏳ Merge läuft…",
+      "ok": "✓ Merge abgeschlossen",
+      "fail": "✕ Merge fehlgeschlagen: {msg}"
+    },
+    "rebase": {
+      "title": "Rebase",
+      "tip": "Einen Branch auf einen anderen rebasen: git switch Branch, dann git rebase onto.",
+      "branch": "Zu rebasender Branch",
+      "onto": "onto",
+      "btn": "Rebase",
+      "rebasing": "⏳ Rebase läuft…",
+      "ok": "✓ Rebase abgeschlossen",
+      "fail": "✕ Rebase fehlgeschlagen: {msg}"
+    },
+    "diff": {
+      "title": "Branches vergleichen",
+      "tip": "Zwei Branches vergleichen: git diff base...compare.",
+      "base": "Basis",
+      "compare": "Vergleichen",
+      "btn": "Diff anzeigen",
+      "comparing": "⏳ Vergleich läuft…",
+      "loading": "Diff wird geladen…",
+      "placeholder": "„Diff anzeigen“ klicken, um die Ausgabe zu laden.",
+      "noDiff": "Kein Diff (oder leere Ausgabe).",
+      "fail": "Vergleich fehlgeschlagen: {msg}"
+    },
+    "alerts": {
+      "switchFailed": "Wechsel fehlgeschlagen: {msg}",
+      "createFailed": "Erstellung fehlgeschlagen: {msg}",
+      "cannotDeleteCurrent": "Der aktuelle Branch kann nicht gelöscht werden. Bitte zuerst wechseln.",
+      "deleteLocalConfirm": "Lokalen Branch „{name}“ löschen?",
+      "forceDeleteConfirm": "Löschen fehlgeschlagen; Branch evtl. nicht vollständig gemerged. Erzwingen?",
+      "forceDeleteFailed": "Erzwungenes Löschen fehlgeschlagen: {msg}",
+      "deleteFailed": "Löschen fehlgeschlagen: {msg}",
+      "deleteRemoteConfirm": "Remote-Branch „{name}“ löschen?",
+      "deleteRemoteFailed": "Remote-Branch konnte nicht gelöscht werden: {msg}",
+      "mergeConfirm": "„{source}“ in „{target}“ mergen?",
+      "rebaseConfirm": "„{branch}“ auf „{onto}“ rebasen?"
+    }
+  },
+  "sync": {
+    "remoteTitle": "Remote",
+    "refresh": "Aktualisieren",
+    "refreshing": "Wird aktualisiert…",
+    "remoteBranchLabel": "Remote:",
+    "trackingLabel": "Tracking:",
+    "urlLabel": "URL:",
+    "aheadLabel": "↑ Voraus",
+    "behindLabel": "↓ Zurück",
+    "unpushedTitle": "Nicht gepushte Dateien ({n})",
+    "noRemoteLinked": "Kein Remote konfiguriert",
+    "addRemoteBtn": "+ Remote hinzufügen",
+    "processing": "Wird verarbeitet…",
+    "addRemoteFormTitle": "Remote hinzufügen",
+    "name": "Name",
+    "url": "URL",
+    "add": "Hinzufügen",
+    "adding": "Wird hinzugefügt…",
+    "cancel": "Abbrechen",
+    "actionsTitle": "Synchronisation",
+    "fetch": "📥 Fetch",
+    "fetching": "Fetch läuft…",
+    "fetchHint": "Remote-Updates holen ohne Merge",
+    "pull": "⬇️ Pull",
+    "pulling": "Pull läuft…",
+    "pullHint": "Remote-Änderungen holen und mergen",
+    "push": "⬆️ Push",
+    "pushing": "Push läuft…",
+    "pushHint": "Zum Remote pushen",
+    "success": "✓ Erfolgreich",
+    "errorTitle": "✕ Fehlgeschlagen",
+    "conflictTitle": "Merge-Konflikt. Nächste Schritte:",
+    "conflictStep1": "Tab „Änderungen“ öffnen und Konfliktdateien prüfen",
+    "conflictStep2": "Konflikte manuell lösen",
+    "conflictStep3": "Erneut stagen und committen",
+    "outputFetchOk": "Remote-Updates geholt",
+    "outputPullOk": "Remote-Änderungen gepullt und gemerged",
+    "outputPushOk": "Zum Remote gepusht",
+    "alerts": {
+      "addRemoteFailed": "Remote konnte nicht hinzugefügt werden: {msg}"
+    }
+  }
+}

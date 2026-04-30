@@ -3,21 +3,21 @@
     <div class="panel-header">
       <h2 class="panel-title">{{ title }}</h2>
       <div v-if="currentRepo" class="toolbar">
-        <button @click="refreshStatus" class="btn-refresh" title="刷新" :disabled="isAnyActionLoading">
-          {{ isActionLoading('refresh') ? '⏳ 刷新中...' : '🔄 刷新' }}
+        <button @click="refreshStatus" class="btn-refresh" :title="t('changes.toolbar.refreshTitle')" :disabled="isAnyActionLoading">
+          {{ isActionLoading('refresh') ? t('changes.toolbar.refreshing') : t('changes.toolbar.refresh') }}
         </button>
-        <button @click="selectAll" class="btn-select" title="全选" :disabled="isAnyActionLoading">
-          {{ allSelected ? '☑ 全选' : '☐ 全选' }}
+        <button @click="selectAll" class="btn-select" :title="t('changes.toolbar.selectAllTitle')" :disabled="isAnyActionLoading">
+          {{ allSelected ? t('changes.toolbar.selectAllOn') : t('changes.toolbar.selectAllOff') }}
         </button>
       </div>
     </div>
 
     <p v-if="currentRepo && status.error" class="status-error-banner">
-      读取 Git 状态失败：{{ status.error }}
+      {{ t('changes.errors.statusReadFailed', { msg: status.error }) }}
     </p>
 
     <p v-if="!currentRepo" class="no-repo">
-      请先在「仓库管理」中打开一个 Git 仓库
+      {{ t('changes.noRepo') }}
     </p>
 
     <template v-else>
@@ -28,7 +28,7 @@
             <!-- Staged Files -->
             <div class="file-section" v-if="status.staged.length > 0">
               <h3 class="section-title staged">
-                ▶ 已暂存 ({{ status.staged.length }})
+                ▶ {{ t('changes.section.staged') }} ({{ status.staged.length }})
               </h3>
               <div class="file-list">
                 <div
@@ -53,7 +53,7 @@
             <!-- Modified Files -->
             <div class="file-section" v-if="status.modified.length > 0">
               <h3 class="section-title modified">
-                ▼ 已修改 ({{ status.modified.length }})
+                ▼ {{ t('changes.section.modified') }} ({{ status.modified.length }})
               </h3>
               <div class="file-list">
                 <div
@@ -76,39 +76,39 @@
 
             <!-- 提交（原「提交」页） -->
             <div class="file-section commit-inline">
-              <h3 class="section-title commit-section-title">提交</h3>
+              <h3 class="section-title commit-section-title">{{ t('changes.commit.title') }}</h3>
               <div class="commit-inline-body">
-                <label class="commit-label">提交信息</label>
+                <label class="commit-label">{{ t('changes.commit.messageLabel') }}</label>
                 <textarea
                   v-model="commitMessage"
                   class="commit-textarea"
                   rows="3"
-                  placeholder="输入提交信息..."
+                  :placeholder="t('changes.commit.placeholder')"
                 />
                 <div class="commit-amend">
                   <label>
                     <input type="checkbox" v-model="useAmend" />
-                    追加到上一次提交 (amend)
+                    {{ t('changes.commit.amend') }}
                   </label>
                   <span v-if="useAmend && lastCommitMsg" class="commit-amend-hint">
-                    上次: {{ lastCommitMsg }}
+                    {{ t('changes.commit.lastPrefix') }} {{ lastCommitMsg }}
                   </span>
                 </div>
                 <p v-if="status.staged.length === 0" class="commit-no-staged">
-                  暂无待提交文件，请先在上方暂存
+                  {{ t('changes.commit.noStaged') }}
                 </p>
                 <div class="commit-actions">
-                  <button type="button" class="btn-commit-primary" :disabled="!canCommit || isAnyActionLoading" title="提交到本地仓库" @click="doCommit">
-                    {{ isActionLoading('commit') ? '提交中...' : '✓ 提交' }}
+                  <button type="button" class="btn-commit-primary" :disabled="!canCommit || isAnyActionLoading" :title="t('changes.commit.submitTitle')" @click="doCommit">
+                    {{ isActionLoading('commit') ? t('changes.commit.submitting') : t('changes.commit.submit') }}
                   </button>
                   <button
                     type="button"
                     class="btn-commit-push"
                     :disabled="!canCommit || !hasRemote || isAnyActionLoading"
-                    title="提交并推送到远程"
+                    :title="t('changes.commit.pushTitle')"
                     @click="doCommitAndPush"
                   >
-                    {{ isActionLoading('commitPush') ? '推送中...' : '↑ 提交并推送' }}
+                    {{ isActionLoading('commitPush') ? t('changes.commit.pushing') : t('changes.commit.push') }}
                   </button>
                 </div>
                 <div
@@ -116,7 +116,7 @@
                   class="commit-result-msg"
                   :class="{ success: commitResult.success, error: !commitResult.success }"
                 >
-                  {{ commitResult.success ? '提交成功!' : '提交失败: ' + formatCommitError(commitResult.error) }}
+                  {{ commitResult.success ? t('changes.commit.success') : t('changes.commit.failed', { msg: formatCommitError(commitResult.error) }) }}
                 </div>
               </div>
             </div>
@@ -124,7 +124,7 @@
             <!-- Untracked Files -->
             <div class="file-section" v-if="status.untracked.length > 0">
               <h3 class="section-title untracked">
-                ✗ 未跟踪 ({{ status.untracked.length }})
+                ✗ {{ t('changes.section.untracked') }} ({{ status.untracked.length }})
               </h3>
               <div class="file-list">
                 <div
@@ -141,7 +141,7 @@
                     @change="toggleSelect(file.path)"
                   />
                   <span class="file-path">{{ file.path }}</span>
-                  <button class="btn-icon" @click.stop="ignoreSingle(file.path)" title="添加到 .gitignore" :disabled="isAnyActionLoading">
+                  <button class="btn-icon" @click.stop="ignoreSingle(file.path)" :title="t('changes.ignoreTitle')" :disabled="isAnyActionLoading">
                     {{ isActionLoading(`ignore:${file.path}`) ? '...' : '⊘' }}
                   </button>
                 </div>
@@ -151,7 +151,7 @@
             <!-- Deleted Files -->
             <div class="file-section" v-if="status.deleted.length > 0">
               <h3 class="section-title deleted">
-                ✖ 已删除 ({{ status.deleted.length }})
+                ✖ {{ t('changes.section.deleted') }} ({{ status.deleted.length }})
               </h3>
               <div class="file-list">
                 <div
@@ -174,7 +174,7 @@
 
             <!-- Empty State -->
             <div class="empty-state" v-if="!hasChanges">
-              <p>✓ 工作区干净，没有变更</p>
+              <p>{{ t('changes.empty.clean') }}</p>
             </div>
           </div>
         </div>
@@ -184,21 +184,21 @@
           <div class="diff-viewer" v-if="activeFile">
             <div class="diff-viewer-header">
               <div class="diff-title">
-                {{ activeFile.path }}{{ activeFile.staged ? ' (已暂存)' : ' (未暂存)' }}
+                {{ activeFile.path }}{{ activeFile.staged ? t('changes.diff.stagedSuffix') : t('changes.diff.unstagedSuffix') }}
               </div>
-              <button class="btn-clear" @click="clearDiff" title="清空预览">✕</button>
+              <button class="btn-clear" @click="clearDiff" :title="t('changes.diff.clearTitle')">✕</button>
             </div>
 
             <div class="diff-columns">
               <div class="diff-pane">
                 <div class="diff-pane-title">
-                  <span>本地文件</span>
+                  <span>{{ t('changes.diff.localFile') }}</span>
                   <span class="diff-nav">
                     <button
                       class="diff-nav-btn"
                       :disabled="diffNav.total === 0"
                       @click="gotoPrevDiff"
-                      title="上一个差异"
+                      :title="t('changes.diff.prevHunk')"
                     >
                       ↑
                     </button>
@@ -206,7 +206,7 @@
                       class="diff-nav-btn"
                       :disabled="diffNav.total === 0"
                       @click="gotoNextDiff"
-                      title="下一个差异"
+                      :title="t('changes.diff.nextHunk')"
                     >
                       ↓
                     </button>
@@ -219,20 +219,20 @@
                 <pre ref="localScrollEl" class="diff-content" @scroll="onLocalScroll"><div v-for="(l, i) in localLines" :key="`l-${i}`" :class="['diff-line', { changed: l.changed }]"><template v-for="(seg, si) in l.segments" :key="`ls-${i}-${si}`"><span :class="seg.kind"><template v-for="(t, ti) in seg.tokens" :key="`lst-${i}-${si}-${ti}`"><span :class="t.kind">{{ t.text }}</span></template></span></template></div></pre>
               </div>
               <div class="diff-pane">
-                <div class="diff-pane-title">Git 当前（HEAD）</div>
+                <div class="diff-pane-title">{{ t('changes.diff.gitHead') }}</div>
                 <pre ref="gitScrollEl" class="diff-content" @scroll="onGitScroll"><div v-for="(l, i) in gitLines" :key="`r-${i}`" :class="['diff-line', { changed: l.changed }]"><template v-for="(seg, si) in l.segments" :key="`rs-${i}-${si}`"><span :class="seg.kind"><template v-for="(t, ti) in seg.tokens" :key="`rst-${i}-${si}-${ti}`"><span :class="t.kind">{{ t.text }}</span></template></span></template></div></pre>
               </div>
             </div>
 
             <div class="diff-loading" v-if="isLoading">
               <div class="spinner" />
-              <div class="diff-loading-text">加载差异中…</div>
+              <div class="diff-loading-text">{{ t('changes.diff.loading') }}</div>
             </div>
           </div>
 
           <div class="diff-placeholder" v-else>
-            <div class="diff-placeholder-title">差异预览</div>
-            <div class="diff-placeholder-text">点击左侧文件行，在此处加载对比。</div>
+            <div class="diff-placeholder-title">{{ t('changes.diff.placeholderTitle') }}</div>
+            <div class="diff-placeholder-text">{{ t('changes.diff.placeholderHint') }}</div>
           </div>
         </div>
       </div>
@@ -252,20 +252,20 @@
         >
           <div class="ctx-title">
             {{ ctxTitle }}
-            <span class="ctx-sub" v-if="ctx.count > 1">({{ ctx.count }} 个)</span>
+            <span class="ctx-sub" v-if="ctx.count > 1">{{ t('changes.ctx.count', { n: ctx.count }) }}</span>
           </div>
 
           <button class="ctx-item" :disabled="!canStage || isAnyActionLoading" @click="ctxStage">
-            {{ isActionLoading('ctxStage') ? '处理中...' : '+ 暂存' }}
+            {{ isActionLoading('ctxStage') ? t('changes.ctx.processing') : t('changes.ctx.stage') }}
           </button>
           <button class="ctx-item" :disabled="!canUnstage || isAnyActionLoading" @click="ctxUnstage">
-            {{ isActionLoading('ctxUnstage') ? '处理中...' : '- 取消暂存' }}
+            {{ isActionLoading('ctxUnstage') ? t('changes.ctx.processing') : t('changes.ctx.unstage') }}
           </button>
           <button class="ctx-item danger" :disabled="!canDiscard || isAnyActionLoading" @click="ctxDiscard">
-            {{ isActionLoading('ctxDiscard') ? '处理中...' : '↩ 撤销更改' }}
+            {{ isActionLoading('ctxDiscard') ? t('changes.ctx.processing') : t('changes.ctx.discard') }}
           </button>
           <button class="ctx-item" :disabled="!canIgnore || isAnyActionLoading" @click="ctxIgnore">
-            {{ isActionLoading('ctxIgnore') ? '处理中...' : '⊘ 忽略（加入 .gitignore）' }}
+            {{ isActionLoading('ctxIgnore') ? t('changes.ctx.processing') : t('changes.ctx.ignore') }}
           </button>
         </div>
       </div>
@@ -273,8 +273,8 @@
       <!-- Non-changes modes -->
       <template v-else>
         <div v-if="mode === 'sync'">
-          <button>拉取</button>
-          <button>推送</button>
+          <button>{{ t('changes.stub.pull') }}</button>
+          <button>{{ t('changes.stub.push') }}</button>
         </div>
         <p v-else>{{ readyText }}</p>
       </template>
@@ -284,6 +284,9 @@
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   title: { type: String, required: true },
@@ -379,22 +382,22 @@ function closeContextMenu() {
 async function stagePaths(paths) {
   if (!window.electronAPI || paths.length === 0) return
   const result = await window.electronAPI.add(props.currentRepo.path, paths)
-  if (!result.success) alert('暂存失败: ' + result.error)
+  if (!result.success) alert(t('changes.alerts.stageFailed', { msg: result.error }))
   await loadStatus()
 }
 
 async function unstagePaths(paths) {
   if (!window.electronAPI || paths.length === 0) return
   const result = await window.electronAPI.reset(props.currentRepo.path, paths)
-  if (!result.success) alert('取消暂存失败: ' + result.error)
+  if (!result.success) alert(t('changes.alerts.unstageFailed', { msg: result.error }))
   await loadStatus()
 }
 
 async function discardPaths(paths) {
   if (!window.electronAPI || paths.length === 0) return
-  if (!confirm('确定要撤销这些文件的更改吗？此操作不可恢复！')) return
+  if (!confirm(t('changes.alerts.discardConfirm'))) return
   const result = await window.electronAPI.checkout(props.currentRepo.path, paths)
-  if (!result.success) alert('撤销失败: ' + result.error)
+  if (!result.success) alert(t('changes.alerts.discardFailed', { msg: result.error }))
   await loadStatus()
 }
 
@@ -831,10 +834,10 @@ function formatCommitError(error) {
     normalized.includes('updates were rejected because the tip of your current branch is behind')
 
   if (isNonFastForward) {
-    return '推送被拒绝：远程分支有新提交，请先拉取最新版本并解决可能的冲突后再推送。'
+    return t('changes.commitError.pushRejected')
   }
 
-  return raw || '未知错误'
+  return raw || t('changes.commitError.unknown')
 }
 
 async function loadLastCommit() {
@@ -949,7 +952,7 @@ async function stageSelected() {
   if (result.success) {
     await loadStatus()
   } else {
-    alert('暂存失败: ' + result.error)
+    alert(t('changes.alerts.stageFailed', { msg: result.error }))
   }
 }
 
@@ -960,7 +963,7 @@ async function unstageSelected() {
   const stagedSet = new Set(status.value.staged.map(f => f.path))
   const filesToUnstage = selectedFiles.value.filter(p => stagedSet.has(p))
   if (filesToUnstage.length === 0) {
-    alert('请先勾选「已暂存」区域的文件')
+    alert(t('changes.alerts.pickStagedFirst'))
     return
   }
 
@@ -969,7 +972,7 @@ async function unstageSelected() {
   if (result.success) {
     await loadStatus()
   } else {
-    alert('取消暂存失败: ' + result.error)
+    alert(t('changes.alerts.unstageFailed', { msg: result.error }))
   }
 }
 
@@ -977,14 +980,14 @@ async function unstageSelected() {
 async function discardSelected() {
   if (!window.electronAPI || selectedFiles.value.length === 0) return
   
-  if (!confirm('确定要撤销这些文件的更改吗？此操作不可恢复！')) return
+  if (!confirm(t('changes.alerts.discardConfirm'))) return
   
   const result = await window.electronAPI.checkout(props.currentRepo.path, selectedFiles.value)
   
   if (result.success) {
     await loadStatus()
   } else {
-    alert('撤销失败: ' + result.error)
+    alert(t('changes.alerts.discardFailed', { msg: result.error }))
   }
 }
 
@@ -1025,8 +1028,8 @@ async function viewDiff(filePath, staged = null) {
 
   try {
     const versions = await window.electronAPI.getFileVersions(props.currentRepo.path, filePath)
-    localContent.value = versions?.localContent ?? '(无法读取本地文件)'
-    gitContent.value = versions?.gitContent ?? '(无法读取 Git 当前版本)'
+    localContent.value = versions?.localContent ?? t('changes.diff.localUnreadable')
+    gitContent.value = versions?.gitContent ?? t('changes.diff.gitUnreadable')
 
     const aligned = buildAlignedDiff(localContent.value, gitContent.value)
     localLines.value = aligned.left

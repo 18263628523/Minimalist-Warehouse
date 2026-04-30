@@ -1,34 +1,34 @@
 <template>
   <div class="panel">
-    <h2>项目 / 仓库管理</h2>
+    <h2>{{ t('repoPanel.title') }}</h2>
 
     <div class="actions">
       <button @click="$emit('open-repo')" class="btn-primary">
-        📂 打开本地仓库
+        📂 {{ t('repoPanel.openLocal') }}
       </button>
       <button @click="$emit('create-repo')" class="btn-secondary">
-        ➕ 新建仓库
+        ➕ {{ t('repoPanel.createNew') }}
       </button>
     </div>
 
     <div class="current-repo" v-if="currentRepo">
-      <h3>当前仓库</h3>
+      <h3>{{ t('repoPanel.currentRepo') }}</h3>
       <div class="repo-detail">
         <div class="detail-row">
-          <span class="label">路径：</span>
+          <span class="label">{{ t('repoPanel.pathLabel') }}</span>
           <span class="value">{{ currentRepo.path }}</span>
         </div>
         <div class="detail-row">
-          <span class="label">状态：</span>
+          <span class="label">{{ t('repoPanel.statusLabel') }}</span>
           <span class="value" :class="{ connected: hasRemote }">
-            {{ hasRemote ? '已关联远程' : '未关联远程' }}
+            {{ hasRemote ? t('repo.linkedRemote') : t('repo.noRemote') }}
           </span>
         </div>
       </div>
     </div>
 
     <div class="recent-repos" v-if="recentRepos.length > 0">
-      <h3>最近打开的仓库</h3>
+      <h3>{{ t('repoPanel.recentTitle') }}</h3>
       <ul class="repo-list">
         <li
           v-for="repo in recentRepos"
@@ -42,12 +42,14 @@
     </div>
 
     <div class="empty-state" v-else>
-      <p>暂无最近打开的仓库</p>
+      <p>{{ t('repoPanel.emptyRecent') }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+
 defineProps({
   currentRepo: { type: Object, default: null },
   hasRemote: { type: Boolean, required: true },
@@ -55,6 +57,8 @@ defineProps({
 })
 
 defineEmits(['open-repo', 'create-repo', 'switch-repo'])
+
+const { t } = useI18n()
 </script>
 
 <style scoped>
@@ -119,7 +123,9 @@ button:hover {
 
 .detail-row .label {
   color: #888;
-  width: 60px;
+  flex: 0 0 auto;
+  min-width: 3.5rem;
+  padding-right: 8px;
 }
 
 .detail-row .value {

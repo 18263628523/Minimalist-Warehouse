@@ -1,0 +1,245 @@
+{
+  "app": { "title": "Git Client" },
+  "tabs": {
+    "repo": "저장소",
+    "changes": "변경 사항",
+    "branches": "브랜치",
+    "log": "기록",
+    "sync": "동기화"
+  },
+  "repo": {
+    "linkedRemote": "원격 연결됨",
+    "noRemote": "원격 없음",
+    "noSelection": "저장소 없음",
+    "openFirst": "먼저 저장소를 여세요"
+  },
+  "panel": {
+    "changesTitle": "파일 변경",
+    "changesReady": "변경 사항 없음",
+    "branchesTitle": "브랜치 관리",
+    "logTitle": "커밋 기록",
+    "logReady": "커밋 없음",
+    "syncTitle": "원격 동기화"
+  },
+  "alerts": {
+    "runInElectron": "Electron 안에서 실행해 주세요",
+    "notGitRepo": "선택한 폴더는 Git 저장소가 아닙니다",
+    "repoCreated": "저장소가 만들어졌습니다.",
+    "createFailed": "생성 실패: {msg}",
+    "folderNotGitAnymore": "이 폴더는 더 이상 Git 저장소가 아닙니다"
+  },
+  "language": {
+    "label": "언어",
+    "zhCN": "简体中文",
+    "enUS": "English"
+  },
+  "repoPanel": {
+    "title": "프로젝트 / 저장소",
+    "openLocal": "로컬 저장소 열기",
+    "createNew": "새 저장소",
+    "currentRepo": "현재 저장소",
+    "pathLabel": "경로:",
+    "statusLabel": "상태:",
+    "recentTitle": "최근 저장소",
+    "emptyRecent": "최근 저장소 없음"
+  },
+  "changes": {
+    "toolbar": {
+      "refreshTitle": "새로 고침",
+      "refresh": "🔄 새로 고침",
+      "refreshing": "⏳ 새로 고치는 중…",
+      "selectAllTitle": "모두 선택",
+      "selectAllOn": "☑ 모두 선택",
+      "selectAllOff": "☐ 모두 선택"
+    },
+    "errors": {
+      "statusReadFailed": "Git 상태를 읽지 못했습니다: {msg}"
+    },
+    "noRepo": "먼저 저장소 탭에서 Git 저장소를 여세요.",
+    "section": {
+      "staged": "스테이징됨",
+      "modified": "수정됨",
+      "untracked": "추적 안 됨",
+      "deleted": "삭제됨"
+    },
+    "commit": {
+      "title": "커밋",
+      "messageLabel": "커밋 메시지",
+      "placeholder": "커밋 메시지를 입력하세요…",
+      "amend": "이전 커밋 수정 (amend)",
+      "lastPrefix": "마지막:",
+      "noStaged": "커밋할 내용이 없습니다. 위에서 먼저 스테이징하세요.",
+      "submit": "✓ 커밋",
+      "submitting": "커밋 중…",
+      "submitTitle": "로컬 저장소에 커밋",
+      "push": "↑ 커밋 후 푸시",
+      "pushing": "푸시 중…",
+      "pushTitle": "커밋 후 원격으로 푸시",
+      "success": "커밋했습니다.",
+      "failed": "커밋 실패: {msg}"
+    },
+    "empty": {
+      "clean": "✓ 작업 트리 깨끗함"
+    },
+    "diff": {
+      "stagedSuffix": " (스테이징됨)",
+      "unstagedSuffix": " (스테이징 안 됨)",
+      "clearTitle": "미리보기 지우기",
+      "localFile": "로컬 파일",
+      "gitHead": "Git (HEAD)",
+      "loading": "diff 불러오는 중…",
+      "placeholderTitle": "diff 미리보기",
+      "placeholderHint": "왼쪽 파일을 클릭하면 비교가 표시됩니다.",
+      "prevHunk": "이전 변경",
+      "nextHunk": "다음 변경",
+      "localUnreadable": "(로컬 파일을 읽을 수 없음)",
+      "gitUnreadable": "(Git 버전을 읽을 수 없음)"
+    },
+    "ignoreTitle": ".gitignore에 추가",
+    "ctx": {
+      "count": "({n}개)",
+      "processing": "처리 중…",
+      "stage": "+ 스테이징",
+      "unstage": "- 스테이징 취소",
+      "discard": "↩ 변경 취소",
+      "ignore": "⊘ 무시 (.gitignore에 추가)"
+    },
+    "alerts": {
+      "stageFailed": "스테이징 실패: {msg}",
+      "unstageFailed": "스테이징 취소 실패: {msg}",
+      "discardConfirm": "이 파일들의 변경을 취소할까요? 되돌릴 수 없습니다.",
+      "discardFailed": "취소 실패: {msg}",
+      "pickStagedFirst": "먼저 ‘스테이징됨’ 영역에서 파일을 선택하세요."
+    },
+    "commitError": {
+      "pushRejected": "푸시 거부됨: 원격에 새 커밋이 있습니다. 풀 후 충돌을 해결한 뒤 푸시하세요.",
+      "unknown": "알 수 없는 오류"
+    },
+    "stub": {
+      "pull": "풀",
+      "push": "푸시"
+    }
+  },
+  "branches": {
+    "toolbar": {
+      "refreshTitle": "새로 고침",
+      "refresh": "🔄 새로 고침",
+      "refreshing": "🔄 새로 고치는 중…"
+    },
+    "local": {
+      "title": "로컬 브랜치",
+      "tip": "모든 로컬 브랜치입니다. 클릭하면 전환합니다."
+    },
+    "remote": {
+      "title": "원격 브랜치",
+      "tip": "원격 추적 브랜치(예: origin/main). 새 브랜치는 푸시하기 전까지 로컬에만 있습니다.",
+      "readFailed": "원격 브랜치를 불러오지 못했습니다: {msg}",
+      "fetchFailed": "원격 브랜치를 불러오지 못했습니다",
+      "noRemote": "원격이 설정되어 있지 않음",
+      "empty": "원격 브랜치 없음"
+    },
+    "emptyLocal": "로컬 브랜치 없음",
+    "tooltipOnBranch": "현재 브랜치",
+    "tooltipSwitchTo": "로컬 브랜치 \"{branch}\"(으)로 전환",
+    "deleteLocalTitle": "로컬 브랜치 삭제",
+    "deleteRemoteTitle": "원격 브랜치 삭제",
+    "new": {
+      "title": "새 브랜치",
+      "name": "이름",
+      "base": "기준",
+      "baseCurrent": "현재 브랜치",
+      "baseCurrentNamed": "현재 브랜치 ({branch})",
+      "create": "만들기",
+      "creating": "⏳ 만드는 중…",
+      "hint": "로컬 브랜치만 생성됩니다. GitHub에 보이려면 전환 후 푸시하고 원격을 새로 고치세요.",
+      "hintIconTitle": "도움말"
+    },
+    "merge": {
+      "title": "브랜치 병합",
+      "tip": "소스를 대상에 병합: git switch 대상 후 git merge 소스.",
+      "target": "대상 브랜치",
+      "source": "소스 브랜치",
+      "btn": "병합",
+      "merging": "⏳ 병합 중…",
+      "ok": "✓ 병합 완료",
+      "fail": "✕ 병합 실패: {msg}"
+    },
+    "rebase": {
+      "title": "리베이스",
+      "tip": "한 브랜치를 다른 브랜치 위에 리베이스: git switch 브랜치 후 git rebase onto.",
+      "branch": "리베이스할 브랜치",
+      "onto": "onto",
+      "btn": "리베이스",
+      "rebasing": "⏳ 리베이스 중…",
+      "ok": "✓ 리베이스 완료",
+      "fail": "✕ 리베이스 실패: {msg}"
+    },
+    "diff": {
+      "title": "브랜치 비교",
+      "tip": "두 브랜치 비교: git diff base...compare.",
+      "base": "기준",
+      "compare": "비교",
+      "btn": "diff 표시",
+      "comparing": "⏳ 비교 중…",
+      "loading": "diff 불러오는 중…",
+      "placeholder": "‘diff 표시’를 클릭하면 출력이 표시됩니다.",
+      "noDiff": "차이 없음(또는 빈 출력).",
+      "fail": "비교 실패: {msg}"
+    },
+    "alerts": {
+      "switchFailed": "전환 실패: {msg}",
+      "createFailed": "생성 실패: {msg}",
+      "cannotDeleteCurrent": "현재 체크아웃한 브랜치는 삭제할 수 없습니다. 먼저 전환하세요.",
+      "deleteLocalConfirm": "로컬 브랜치 \"{name}\"을(를) 삭제할까요?",
+      "forceDeleteConfirm": "삭제 실패, 병합이 완료되지 않았을 수 있습니다. 강제 삭제할까요?",
+      "forceDeleteFailed": "강제 삭제 실패: {msg}",
+      "deleteFailed": "삭제 실패: {msg}",
+      "deleteRemoteConfirm": "원격 브랜치 \"{name}\"을(를) 삭제할까요?",
+      "deleteRemoteFailed": "원격 브랜치 삭제 실패: {msg}",
+      "mergeConfirm": "\"{source}\"을(를) \"{target}\"에 병합할까요?",
+      "rebaseConfirm": "\"{branch}\"을(를) \"{onto}\" 위에 리베이스할까요?"
+    }
+  },
+  "sync": {
+    "remoteTitle": "원격",
+    "refresh": "새로 고침",
+    "refreshing": "새로 고치는 중…",
+    "remoteBranchLabel": "원격:",
+    "trackingLabel": "추적:",
+    "urlLabel": "URL:",
+    "aheadLabel": "↑ 앞섬",
+    "behindLabel": "↓ 뒤처짐",
+    "unpushedTitle": "푸시 안 된 파일 ({n})",
+    "noRemoteLinked": "원격이 설정되어 있지 않음",
+    "addRemoteBtn": "+ 원격 추가",
+    "processing": "처리 중…",
+    "addRemoteFormTitle": "원격 추가",
+    "name": "이름",
+    "url": "URL",
+    "add": "추가",
+    "adding": "추가 중…",
+    "cancel": "취소",
+    "actionsTitle": "동기화",
+    "fetch": "📥 Fetch",
+    "fetching": "가져오는 중…",
+    "fetchHint": "병합 없이 원격 업데이트만 가져오기",
+    "pull": "⬇️ Pull",
+    "pulling": "풀하는 중…",
+    "pullHint": "원격 변경을 가져와 병합",
+    "push": "⬆️ Push",
+    "pushing": "푸시 중…",
+    "pushHint": "원격으로 푸시",
+    "success": "✓ 완료",
+    "errorTitle": "✕ 실패",
+    "conflictTitle": "병합 충돌입니다. 다음을 진행하세요:",
+    "conflictStep1": "변경 사항 탭에서 충돌 파일 확인",
+    "conflictStep2": "수동으로 충돌 해결",
+    "conflictStep3": "다시 스테이징 후 커밋",
+    "outputFetchOk": "원격 업데이트를 가져왔습니다",
+    "outputPullOk": "원격 변경을 풀하고 병합했습니다",
+    "outputPushOk": "원격으로 푸시했습니다",
+    "alerts": {
+      "addRemoteFailed": "원격 추가 실패: {msg}"
+    }
+  }
+}

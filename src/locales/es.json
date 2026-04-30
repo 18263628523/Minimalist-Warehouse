@@ -1,0 +1,247 @@
+{
+  "app": {
+    "title": "Git Client"
+  },
+  "tabs": {
+    "repo": "Repositorio",
+    "changes": "Cambios",
+    "branches": "Ramas",
+    "log": "Registro",
+    "sync": "Sincronización"
+  },
+  "repo": {
+    "linkedRemote": "Remoto vinculado",
+    "noRemote": "Sin remoto",
+    "noSelection": "Sin repositorio seleccionado",
+    "openFirst": "Abre primero un repositorio"
+  },
+  "panel": {
+    "changesTitle": "Cambios de archivos",
+    "changesReady": "Sin cambios",
+    "branchesTitle": "Gestión de ramas",
+    "logTitle": "Historial de commits",
+    "logReady": "Sin commits todavía",
+    "syncTitle": "Sincronización remota"
+  },
+  "alerts": {
+    "runInElectron": "Ejecuta la app dentro de Electron",
+    "notGitRepo": "La carpeta seleccionada no es un repositorio Git",
+    "repoCreated": "Repositorio creado.",
+    "createFailed": "Error al crear: {msg}",
+    "folderNotGitAnymore": "Esta carpeta ya no es un repositorio Git"
+  },
+  "language": {
+    "label": "Idioma",
+    "zhCN": "简体中文",
+    "enUS": "English"
+  },
+  "repoPanel": {
+    "title": "Proyecto / repositorio",
+    "openLocal": "Abrir repositorio local",
+    "createNew": "Nuevo repositorio",
+    "currentRepo": "Repositorio actual",
+    "pathLabel": "Ruta:",
+    "statusLabel": "Estado:",
+    "recentTitle": "Repositorios recientes",
+    "emptyRecent": "No hay repositorios recientes"
+  },
+  "changes": {
+    "toolbar": {
+      "refreshTitle": "Actualizar",
+      "refresh": "🔄 Actualizar",
+      "refreshing": "⏳ Actualizando...",
+      "selectAllTitle": "Seleccionar todo",
+      "selectAllOn": "☑ Seleccionar todo",
+      "selectAllOff": "☐ Seleccionar todo"
+    },
+    "errors": {
+      "statusReadFailed": "No se pudo leer el estado de Git: {msg}"
+    },
+    "noRepo": "Primero abre un repositorio Git en la pestaña Repositorio.",
+    "section": {
+      "staged": "En staging",
+      "modified": "Modificados",
+      "untracked": "Sin seguimiento",
+      "deleted": "Eliminados"
+    },
+    "commit": {
+      "title": "Commit",
+      "messageLabel": "Mensaje de commit",
+      "placeholder": "Escribe el mensaje de commit...",
+      "amend": "Agregar al commit anterior (amend)",
+      "lastPrefix": "Último:",
+      "noStaged": "No hay archivos listos para commit. Haz staging primero.",
+      "submit": "✓ Commit",
+      "submitting": "Realizando commit...",
+      "submitTitle": "Hacer commit en el repositorio local",
+      "push": "↑ Commit y push",
+      "pushing": "Enviando...",
+      "pushTitle": "Hacer commit y push al remoto",
+      "success": "Commit realizado.",
+      "failed": "Error de commit: {msg}"
+    },
+    "empty": {
+      "clean": "✓ Árbol de trabajo limpio"
+    },
+    "diff": {
+      "stagedSuffix": " (en staging)",
+      "unstagedSuffix": " (sin staging)",
+      "clearTitle": "Limpiar vista previa",
+      "localFile": "Archivo local",
+      "gitHead": "Git actual (HEAD)",
+      "loading": "Cargando diff...",
+      "placeholderTitle": "Vista previa de diferencias",
+      "placeholderHint": "Haz clic en un archivo de la izquierda para cargar la comparación.",
+      "prevHunk": "Cambio anterior",
+      "nextHunk": "Siguiente cambio",
+      "localUnreadable": "(No se pudo leer el archivo local)",
+      "gitUnreadable": "(No se pudo leer la versión de Git)"
+    },
+    "ignoreTitle": "Agregar a .gitignore",
+    "ctx": {
+      "count": "({n} elementos)",
+      "processing": "Procesando...",
+      "stage": "+ Staging",
+      "unstage": "- Quitar de staging",
+      "discard": "↩ Descartar cambios",
+      "ignore": "⊘ Ignorar (agregar a .gitignore)"
+    },
+    "alerts": {
+      "stageFailed": "Error de staging: {msg}",
+      "unstageFailed": "Error al quitar de staging: {msg}",
+      "discardConfirm": "¿Descartar los cambios de estos archivos? Esta acción no se puede deshacer.",
+      "discardFailed": "Error al descartar: {msg}",
+      "pickStagedFirst": "Selecciona primero archivos en la sección de staging."
+    },
+    "commitError": {
+      "pushRejected": "Push rechazado: el remoto tiene commits nuevos. Haz pull y resuelve conflictos antes de enviar.",
+      "unknown": "Error desconocido"
+    },
+    "stub": {
+      "pull": "Pull",
+      "push": "Push"
+    }
+  },
+  "branches": {
+    "toolbar": {
+      "refreshTitle": "Actualizar",
+      "refresh": "🔄 Actualizar",
+      "refreshing": "🔄 Actualizando..."
+    },
+    "local": {
+      "title": "Ramas locales",
+      "tip": "Muestra todas las ramas locales. Haz clic para cambiar."
+    },
+    "remote": {
+      "title": "Ramas remotas",
+      "tip": "Muestra ramas remotas (por ejemplo, origin/main). Una rama nueva se crea localmente hasta hacer push.",
+      "readFailed": "No se pudieron leer las ramas remotas: {msg}",
+      "fetchFailed": "No se pudieron leer las ramas remotas",
+      "noRemote": "No hay remoto configurado",
+      "empty": "Sin ramas remotas"
+    },
+    "emptyLocal": "Sin ramas locales",
+    "tooltipOnBranch": "Ya estás en esta rama",
+    "tooltipSwitchTo": "Cambiar a la rama local \"{branch}\"",
+    "deleteLocalTitle": "Eliminar rama local",
+    "deleteRemoteTitle": "Eliminar rama remota",
+    "new": {
+      "title": "Nueva rama",
+      "name": "Nombre",
+      "base": "Basada en",
+      "baseCurrent": "Rama actual",
+      "baseCurrentNamed": "Rama actual ({branch})",
+      "create": "Crear",
+      "creating": "⏳ Creando...",
+      "hint": "Esto crea una rama local. Para verla en GitHub, cambia a ella, haz push y actualiza ramas remotas.",
+      "hintIconTitle": "Ayuda"
+    },
+    "merge": {
+      "title": "Fusionar ramas",
+      "tip": "Fusiona la rama origen en la destino: git switch destino + git merge origen.",
+      "target": "Rama destino",
+      "source": "Rama origen",
+      "btn": "Fusionar",
+      "merging": "⏳ Fusionando...",
+      "ok": "✓ Fusión completada",
+      "fail": "✕ Error de fusión: {msg}"
+    },
+    "rebase": {
+      "title": "Rebase",
+      "tip": "Rebase de una rama sobre otra: git switch rama + git rebase onto.",
+      "branch": "Rama a rebasar",
+      "onto": "sobre",
+      "btn": "Rebase",
+      "rebasing": "⏳ Rebasando...",
+      "ok": "✓ Rebase completado",
+      "fail": "✕ Error de rebase: {msg}"
+    },
+    "diff": {
+      "title": "Comparar ramas",
+      "tip": "Compara dos ramas: git diff base...compare.",
+      "base": "Base",
+      "compare": "Comparar",
+      "btn": "Mostrar diff",
+      "comparing": "⏳ Comparando...",
+      "loading": "Cargando diff...",
+      "placeholder": "Haz clic en \"Mostrar diff\" para cargar la salida.",
+      "noDiff": "Sin diferencias (o salida vacía).",
+      "fail": "Error al comparar: {msg}"
+    },
+    "alerts": {
+      "switchFailed": "Error al cambiar: {msg}",
+      "createFailed": "Error al crear: {msg}",
+      "cannotDeleteCurrent": "No se puede eliminar la rama actual. Cambia primero a otra rama.",
+      "deleteLocalConfirm": "¿Eliminar la rama local \"{name}\"?",
+      "forceDeleteConfirm": "No se pudo eliminar; puede que no esté fusionada. ¿Forzar eliminación?",
+      "forceDeleteFailed": "Error al forzar eliminación: {msg}",
+      "deleteFailed": "Error al eliminar: {msg}",
+      "deleteRemoteConfirm": "¿Eliminar la rama remota \"{name}\"?",
+      "deleteRemoteFailed": "Error al eliminar rama remota: {msg}",
+      "mergeConfirm": "¿Fusionar \"{source}\" en \"{target}\"?",
+      "rebaseConfirm": "¿Rebasar \"{branch}\" sobre \"{onto}\"?"
+    }
+  },
+  "sync": {
+    "remoteTitle": "Remoto",
+    "refresh": "Actualizar",
+    "refreshing": "Actualizando...",
+    "remoteBranchLabel": "Remoto:",
+    "trackingLabel": "Seguimiento:",
+    "urlLabel": "URL:",
+    "aheadLabel": "↑ Adelante",
+    "behindLabel": "↓ Detrás",
+    "unpushedTitle": "Archivos sin push ({n})",
+    "noRemoteLinked": "No hay remoto configurado",
+    "addRemoteBtn": "+ Agregar remoto",
+    "processing": "Procesando...",
+    "addRemoteFormTitle": "Agregar remoto",
+    "name": "Nombre",
+    "url": "URL",
+    "add": "Agregar",
+    "adding": "Agregando...",
+    "cancel": "Cancelar",
+    "actionsTitle": "Sincronización",
+    "fetch": "📥 Fetch",
+    "fetching": "Obteniendo...",
+    "fetchHint": "Obtiene cambios remotos sin fusionar",
+    "pull": "⬇️ Pull",
+    "pulling": "Haciendo pull...",
+    "pullHint": "Trae y fusiona cambios remotos",
+    "push": "⬆️ Push",
+    "pushing": "Enviando...",
+    "pushHint": "Envía cambios al remoto",
+    "success": "✓ Operación exitosa",
+    "errorTitle": "✕ Operación fallida",
+    "conflictTitle": "Conflicto detectado. Pasos sugeridos:",
+    "conflictStep1": "Revisa archivos en conflicto en la pestaña Cambios",
+    "conflictStep2": "Resuelve los conflictos manualmente",
+    "conflictStep3": "Haz staging y commit nuevamente",
+    "outputFetchOk": "Se obtuvieron actualizaciones remotas",
+    "outputPullOk": "Se hizo pull y fusión de cambios remotos",
+    "outputPushOk": "Cambios enviados al remoto",
+    "alerts": {
+      "addRemoteFailed": "Error al agregar remoto: {msg}"
+    }
+  }
+}

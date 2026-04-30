@@ -2,7 +2,7 @@
   <div class="app-container">
     <header class="header">
       <div class="header-left">
-        <h1>Git Client</h1>
+        <h1>{{ t('app.title') }}</h1>
         <nav class="top-nav">
           <button
             v-for="tab in tabs"
@@ -15,22 +15,41 @@
         </nav>
       </div>
 
-      <div class="header-repo">
-        <template v-if="currentRepo">
-          <div class="repo-name" :title="currentRepo.path">{{ currentRepo.name }}</div>
-          <div class="repo-meta">
-            <span class="repo-status" :class="{ 'has-remote': hasRemote }">
-              {{ hasRemote ? '已关联远程' : '未关联远程' }}
-            </span>
-            <span class="repo-path" :title="currentRepo.path">{{ currentRepo.path }}</span>
-          </div>
-        </template>
-        <template v-else>
-          <div class="repo-name empty">未选择仓库</div>
-          <div class="repo-meta">
-            <span class="repo-status">请先打开仓库</span>
-          </div>
-        </template>
+      <div class="header-right">
+        <div class="header-repo">
+          <template v-if="currentRepo">
+            <div class="repo-name" :title="currentRepo.path">{{ currentRepo.name }}</div>
+            <div class="repo-meta">
+              <span class="repo-status" :class="{ 'has-remote': hasRemote }">
+                {{ hasRemote ? t('repo.linkedRemote') : t('repo.noRemote') }}
+              </span>
+              <span class="repo-path" :title="currentRepo.path">{{ currentRepo.path }}</span>
+            </div>
+          </template>
+          <template v-else>
+            <div class="repo-name empty">{{ t('repo.noSelection') }}</div>
+            <div class="repo-meta">
+              <span class="repo-status">{{ t('repo.openFirst') }}</span>
+            </div>
+          </template>
+        </div>
+
+        <label class="locale-label">
+          <span class="sr-only">{{ t('language.label') }}</span>
+          <select
+            class="locale-select"
+            :value="locale"
+            @change="onLocaleChange($event.target.value)"
+          >
+            <option
+              v-for="lang in languageOptions"
+              :key="lang.value"
+              :value="lang.value"
+            >
+              {{ lang.label }}
+            </option>
+          </select>
+        </label>
       </div>
     </header>
     <div class="main-content">
@@ -47,8 +66,8 @@
 
         <StatusPanel
           v-else-if="activeTab === 'changes'"
-          title="文件变更"
-          ready-text="暂无可用变更"
+          :title="t('panel.changesTitle')"
+          :ready-text="t('panel.changesReady')"
           :current-repo="currentRepo"
           :has-remote="hasRemote"
           mode="changes"
@@ -57,21 +76,21 @@
 
         <BranchesPanel
           v-else-if="activeTab === 'branches'"
-          title="分支管理"
+          :title="t('panel.branchesTitle')"
           :current-repo="currentRepo"
           :has-remote="hasRemote"
         />
 
         <StatusPanel
           v-else-if="activeTab === 'log'"
-          title="提交历史"
-          ready-text="暂无提交记录"
+          :title="t('panel.logTitle')"
+          :ready-text="t('panel.logReady')"
           :current-repo="currentRepo"
         />
 
         <SyncPanel
           v-else-if="activeTab === 'sync'"
-          title="远程同步"
+          :title="t('panel.syncTitle')"
           :current-repo="currentRepo"
           @synced="loadRepoStatus"
         />
@@ -81,11 +100,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import RepoPanel from './components/RepoPanel.vue'
 import StatusPanel from './components/StatusPanel.vue'
 import SyncPanel from './components/SyncPanel.vue'
 import BranchesPanel from './components/BranchesPanel.vue'
+import { persistLocale } from './i18n'
+
+const { t, locale } = useI18n()
 
 const activeTab = ref('repo')
 const currentRepo = ref(null)
@@ -93,18 +116,35 @@ const hasRemote = ref(false)
 const recentRepos = ref([])
 const statusPanelRef = ref(null)
 
-const tabs = [
-  { id: 'repo', name: '仓库' },
-  { id: 'changes', name: '变更' },
-  { id: 'branches', name: '分支' },
-  { id: 'log', name: '日志' },
-  { id: 'sync', name: '同步' }
+const tabs = computed(() => [
+  { id: 'repo', name: t('tabs.repo') },
+  { id: 'changes', name: t('tabs.changes') },
+  { id: 'branches', name: t('tabs.branches') },
+  { id: 'log', name: t('tabs.log') },
+  { id: 'sync', name: t('tabs.sync') }
+])
+
+const languageOptions = [
+  { value: 'en-US', label: 'English' },
+  { value: 'es', label: 'Español' },
+  { value: 'de', label: 'Deutsch' },
+  { value: 'fr', label: 'Français' },
+  { value: 'pt-BR', label: 'Português (Brasil)' },
+  { value: 'ko', label: '한국어' },
+  { value: 'ja', label: '日本語' },
+  { value: 'zh-CN', label: '简体中文' },
+  { value: 'zh-TW', label: '繁體中文' }
 ]
+
+function onLocaleChange(code) {
+  locale.value = code
+  persistLocale(code)
+}
 
 // Open existing repository
 async function openRepo() {
   if (!window.electronAPI) {
-    alert('请在 Electron 环境中运行')
+    alert(t('alerts.runInElectron'))
     return
   }
   
@@ -113,7 +153,7 @@ async function openRepo() {
   
   const isRepo = await window.electronAPI.isGitRepo(folderPath)
   if (!isRepo) {
-    alert('选择的文件夹不是 Git 仓库')
+    alert(t('alerts.notGitRepo'))
     return
   }
   
@@ -132,7 +172,7 @@ async function openRepo() {
 // Create new repository
 async function createNewRepo() {
   if (!window.electronAPI) {
-    alert('请在 Electron 环境中运行')
+    alert(t('alerts.runInElectron'))
     return
   }
   
@@ -147,9 +187,9 @@ async function createNewRepo() {
     hasRemote.value = false
     await window.electronAPI.addRecent(folderPath)
     loadRecentRepos()
-    alert('仓库创建成功！')
+    alert(t('alerts.repoCreated'))
   } else {
-    alert('创建失败: ' + result.error)
+    alert(t('alerts.createFailed', { msg: result.error }))
   }
 }
 
@@ -159,7 +199,7 @@ async function switchToRepo(repo) {
   
   const isRepo = await window.electronAPI.isGitRepo(repo.path)
   if (!isRepo) {
-    alert('该文件夹不再是 Git 仓库')
+    alert(t('alerts.folderNotGitAnymore'))
     loadRecentRepos()
     return
   }
@@ -225,6 +265,45 @@ body {
   align-items: center;
   gap: 16px;
   min-width: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.locale-label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.locale-select {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border: 1px solid #3c3c3c;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.locale-select:focus {
+  outline: 1px solid #007fd4;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .header h1 {
